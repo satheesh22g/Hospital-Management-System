@@ -29,7 +29,7 @@
 **********************************************************************/
  body {
     font-family:'Roboto', sans-serif;
-    color: #FFF;
+    /* color: #FFF; */
     line-height:1.2em;
     font-size:17px;
     /* line-height:20px; */
