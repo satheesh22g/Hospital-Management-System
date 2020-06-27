@@ -6,6 +6,7 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
         <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'css/style.css') }}" />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login1.css') }}">
         
         <!-- JavaScripts -->
         <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
@@ -16,31 +17,33 @@
     </head>
     <body>
 
-        {% include "includes/header.html" %}
+        <div class="row header_content">
+            <div class="container">
+                {% include "includes/header.html" %}
+            </div>
+        </div>
 
-        <div class="container my-5">
-            <!-- this code is used for showing any sucsees/worning/failur popup message -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{category}}">
-                            <p style="font-weight: normal;">{{ message }}</p>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-            
-            <div class="d-flex justify-content-center h-100">
+        <div class="row layout_content">
+            <div class="container my-5 justify-content-center">
+                <!-- this code is used for showing any sucsees/worning/failur popup message -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{category}}">
+                                <p style="font-weight: normal;">{{ message }}</p>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
 
+                <!-- every page body content -->
                 {% block content %}
 
                 {% endblock %}
-            
+                
+
             </div>
-
         </div>
-
-        {% include "includes/footer.html" %}
         
     </body>
 </html>    
