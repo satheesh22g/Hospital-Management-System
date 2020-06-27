@@ -68,7 +68,6 @@ def db_seedData():
 def dashboard():
     return render_template("home.html", home=True)
 
-
 @app.route("/addpatient")
 def addpatient():
     if 'user' not in session:
@@ -96,7 +95,33 @@ def addpatient():
             # flash(f'SSN id : {id} is already present in database.','warning')
     return render_template("addpatient.html",addpatient=True)
 
+@app.route("/editpatient")
+def editpatient():
+    return render_template("editpatient.html",addpatient=True)
 
+#     if 'user' not in session:
+#         return redirect(url_for('login'))
+#     if session['usert'] != "RDE":
+#         flash("You don't have access to this page","warning")
+#         return redirect(url_for('dashboard'))
+#     if request.method == "POST":
+#         id = int(request.form.get("ssn_id"))
+#         name = request.form.get("name")
+#         age= int(request.form.get("age"))
+#         date = request.form.get("Date_of_Admission")
+#         typeofbed = request.form.get("typeofbed")
+#         address = request.form.get("address")
+#         state = request.form.get("state")
+#         city = request.form.get("city")
+#         status = "Active"
+#         query = Patients(id=id,name=name,age=age,DateofAdm =date,TypeofBed=typeofbed,address=address,state=state,city=city,status=status)
+#         db.add(query)
+#         db.commit()
+#         return redirect(url_for('dashboard'))
+#     else:
+#         flash(f'is already present in database.','warning')
+#         # flash(f'SSN id : {id} is already present in database.','warning')
+#     return render_template("addpatient.html",addpatient=True)
 
 # Logout 
 @app.route("/logout")
