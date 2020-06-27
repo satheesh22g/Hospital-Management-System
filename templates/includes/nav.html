@@ -1,8 +1,6 @@
-<div class="navbar">
-  <a href="{{ url_for('dashboard') }}" class="nav-link {% if home %}active{% endif %}">Home</a>
-  {% if not session['user'] %}
-  <a href="{{ url_for('login') }}" class="nav-link {% if login %}active{% endif %}">Log In</a>
-  {% else %}
+<div class="navbar mx-auto">
+  {% if session['user'] %}
+    <a href="{{ url_for('dashboard') }}" class="nav-link {% if home %}active{% endif %}">Home</a>
     {% if session['usert']=="executive" %}
       <div class="subnav">
         <button class="subnavbtn">Customer Management <i class="fa fa-caret-down"></i></button>

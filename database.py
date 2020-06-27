@@ -18,7 +18,7 @@ class Patients(Base):
     __tablename__='patients'
     ssn_id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(250),nullable=False)
-    age = Column(Integer)
+    age = Column(Integer,nullable=False)
     DateofAdm =  Column(DateTime(timezone=False), default=datetime.datetime.utcnow)
     TypeofBed = Column(String(250), nullable=False)
     address = Column(String(250), nullable=False)

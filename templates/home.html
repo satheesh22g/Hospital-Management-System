@@ -3,15 +3,18 @@
 {% block title %}Home page{% endblock %}
 {% block content %}
 
-<main role="main">
-  <div class="jumbotron">
-      <div class="col-sm-8 mx-auto">
-          <h1>Welcome</h1>
-          <p style="color: black;"><b> Welcome to The Hospital Management System.</b></p>
-      </div>
-  </div>
-</main>
 
+<div class="col-sm-8 mx-auto">
+    <h1 class="text-center">Welcome</h1>
+    <div class="mt-4 text-center">
+        <p><b> Welcome to The ABC Hospital Management System.</b></p>
+        
+        {% if not session['user'] %}
+            <p>For Login <b><a href="{{ url_for('login') }}">Click here</a></b></p>
+        {% endif %}
+
+    </div>
+</div>
 
 
 {% endblock %}
