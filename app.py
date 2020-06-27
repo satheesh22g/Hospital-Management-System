@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from database import Base,Users,Patients
 from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import scoped_session, sessionmaker
+from datetime import datetime
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -68,7 +69,12 @@ def db_seedData():
 def dashboard():
     return render_template("home.html", home=True)
 
+<<<<<<< HEAD
 @app.route("/addpatient")
+=======
+
+@app.route("/addpatient", methods=["GET","POST"])
+>>>>>>> Update Addpatient method
 def addpatient():
     if 'user' not in session:
         return redirect(url_for('login'))
@@ -80,7 +86,7 @@ def addpatient():
             id = int(request.form.get("ssn_id"))
             name = request.form.get("name")
             age= int(request.form.get("age"))
-            date = request.form.get("Date_of_Admission")
+            date = (request.form.get("Date_of_Admission"))
             typeofbed = request.form.get("typeofbed")
             address = request.form.get("address")
             state = request.form.get("state")
@@ -89,10 +95,10 @@ def addpatient():
             query = Patients(id=id,name=name,age=age,DateofAdm =date,TypeofBed=typeofbed,address=address,state=state,city=city,status=status)
             db.add(query)
             db.commit()
+            flash(f'patient with id - {id} is added successfully','primary')
             return redirect(url_for('dashboard'))
-        else:
-            flash(f'is already present in database.','warning')
-            # flash(f'SSN id : {id} is already present in database.','warning')
+    else:
+        flash(f'id is already present in database.','warning')
     return render_template("addpatient.html",addpatient=True)
 
 @app.route("/editpatient")
