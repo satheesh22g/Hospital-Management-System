@@ -3,16 +3,15 @@
     <head>
         <title>Hospital Management - {% block title %}{% endblock %}</title>
         <!-- Stylesheets -->
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-        <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+        <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'css/bootstrap.min.css') }}">
         <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'css/style.css') }}" />
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login1.css') }}">
         
         <!-- JavaScripts -->
-        <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
-        <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+        <script text = "text/javascript" src = "{{ url_for('static', filename = 'js/jquery-3.3.1.js') }}"></script>
+        <script type = "text/javascript" src = "{{ url_for('static', filename = 'js/bootstrap.min.js') }}"></script>
+        <script type = "text/javascript" src = "{{ url_for('static', filename = 'js/jquery.min.js') }}"></script>
+        <script type = "text/javascript" src = "{{ url_for('static', filename = 'js/jquery.validate.min.js') }}"></script>
         <script type = "text/javascript" src = "{{ url_for('static', filename = 'js/index.js') }}" ></script>
     </head>
     <body>

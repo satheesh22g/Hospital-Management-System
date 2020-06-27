@@ -68,7 +68,6 @@ def db_seedData():
 def dashboard():
     return render_template("home.html", home=True)
 
-
 @app.route("/addpatient")
 def addpatient():
     if 'user' not in session:
@@ -95,8 +94,6 @@ def addpatient():
             flash(f'is already present in database.','warning')
             # flash(f'SSN id : {id} is already present in database.','warning')
     return render_template("addpatient.html",addpatient=True)
-
-
 
 # Logout 
 @app.route("/logout")
