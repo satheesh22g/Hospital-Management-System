@@ -112,3 +112,7 @@ a{
 .subnav-content .nav-link:hover {
     background-color: #3b88f8;
 }
+label.notice{
+    font-size: 13px;
+    font-weight: 400;
+}
