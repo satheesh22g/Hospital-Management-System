@@ -53,6 +53,13 @@ def login():
                 return redirect(url_for('dashboard'))
         flash("Sorry, Username or password not match.","danger")
     return render_template("login.html", login=True)
+
+# route for 404 error
+@app.errorhandler(404)
+def not_found(e):
+  return render_template("404.html")
+
+
 # Main
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
