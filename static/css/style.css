@@ -152,3 +152,9 @@ label.notice{
     font-weight: 400;
     display: none;
 }
+.btn{
+    color: white;
+    background-color: black;
+    border-radius: 20px;
+    padding: 10px 25px;
+}

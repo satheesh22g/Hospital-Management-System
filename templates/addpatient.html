@@ -1,64 +1,140 @@
 {% extends "layout.html" %}
 
 {% block title %}add patient{% endblock %}
+
 {% block content %}
-<div class = "row mb-3">
-    <div class="card">
-        <div class="card-header" style="color:#000;text-align:center; font-weight: bold; font-size:22px ">
-            Add Patient
-        </div>
-        <div class="card-body">
-            <form action="addpatient" method="POST">
-                <div class="form-group input-group mb-3">
-                    <label class="m-auto pr-3" for="ssn_id" style="color:#000; font-weight: bold; font-size:18px ">Patient Id<span style="color:#ff0000"><sup>*</sup></span></label>
-                   <input class="form-control" name="ssn_id" id="ssn_id" type="textfield" placeholder="Patient SSN ID" required minlength="9" maxlength="9">
-                </div>
-                <div class="form-group input-group mb-3">
-                    <label class="m-auto pr-3" for="name" style="color:#000; font-weight: bold; font-size:18px ">Patient Name <span style="color:#ff0000"><sup>*</sup></span></label>
-                   <input class="form-control" name="name" id="name" type="textfield" placeholder="Name" required maxlength="50">
-                </div>
-               
-                <div class="form-group input-group mb-3">
-                    <label class="m-auto pr-3" for="age"style="color:#000; font-weight: bold; font-size:18px ">Patient Age<span style="color:#ff0000"><sup>*</sup></span></label>
-                   <input class="form-control" name="age" id="age" type="textfield" placeholder="Age" required maxlength="3">
-                </div>
-                <div class="form-group input-group mb-3">
-                    <label class="m-auto pr-3" for="Date_of_Admission" style="color:#000; font-weight: bold; font-size:18px ">Date of Admission<span style="color:#ff0000"><sup>*</sup></span></label>
-                   <input class="form-control" name="Date_of_Admission" id="Date_of_Admission" type="date" placeholder="Date of Admission" required maxlength="100">
-                </div>
-                <div class="form-group input-group mb-3">
-                   
-                    <label class="m-auto pr-3" for="typeofbed" style="color:#000; font-weight: bold; font-size:18px ">Type of Bed<span style="color:#ff0000"><sup>*</sup></span></label>
-        
-                    <select class="form-control" id="typeofbed" name="typeofbed" required>
-                     <option value="General ward">General ward</option>
-                     <option value="semi sharing">Semi sharing</option>
-                     <option value="single room">Single room</option>
-                   </select>
-                </div>
-                <div class="form-group input-group mb-3">
-                    <label class="m-auto pr-3" for="address" style="color:#000; font-weight: bold; font-size:18px ">Address<span style="color:#ff0000"><sup>*</sup></span></label>
-                   <input class="form-control" name="address" id="address" type="textfield" placeholder="Address" required maxlength="100">
-                </div>
-                <div class="form-group input-group mb-3">
-                    <label class="m-auto pr-3" for="state" style="color:#000; font-weight: bold; font-size:18px ">State<span style="color:#ff0000"><sup>*</sup></span></label>
-                   <input class="form-control" name="state" id="state" type="textfield" placeholder="State" required maxlength="20">
-                </div>
-                <div class="form-group input-group mb-3">
-                    <label class="m-auto pr-3" for="city" style="color:#000; font-weight: bold; font-size:18px ">City<span style="color:#ff0000"><sup>*</sup></span></label>
-                   <input class="form-control" name="city" id="city" type="textfield" placeholder="City" required maxlength="20">
-                </div>
-                <span style="color:#ff0000; font-weight:bold;"><p><b>(<sup> * </sup>) Fields are compulsory </b></p></span>
-                <div class="form-group" style="background-color:#ffff66; color:#000; font-weight: bold; font-size:22px ">
-                    <input type="submit" value="Submit" class="btn float-left login_btn" style="font-weight:bold; font-size:18px;">
-                    <button class="reset_btn btn float-right" style="font-weight:bold; font-size:18px;">Reset</button>
-                </div>
+
+<div class = "col-md-8 mx-auto">
+    <h1 class="text-center">Patient Registration</h1>
+    <div class="mt-5 text-center">
+            <form action="{{ url_for('addpatient') }}" method="POST" id="add_patient">
+                <table class="col-sm-9 mx-auto">
+                    <tbody>
+                        <tr>
+                            <th>
+                                <div class="form-group input-group">
+                                    <label class="pl-3" for="ssn_id">Patient ID *</label>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="form-group input-group pl-3">
+                                    <input class="form-control" name="ssn_id" id="ssn_id" type="textfield" placeholder="Patient ID" required minlength="9" maxlength="9">
+                                    <span class="error_msg"></span>
+                                 </div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>
+                                <div class="form-group input-group">
+                                    <label class="pl-3" for="name">Patient Name *</label>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="form-group input-group pl-3">
+                                   <input class="form-control" name="name" id="name" type="textfield" placeholder="Patient Name" required minlength="2" maxlength="50">
+                                </div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>
+                                <div class="form-group input-group">
+                                    <label class="pl-3" for="age">Patient Age *</label>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="form-group input-group pl-3">
+                                   <input class="form-control" name="age" id="age" type="textfield" placeholder="Patient Age" required minlength="1" maxlength="3">
+                                   <span class="error_msg"></span>
+                                </div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>
+                                <div class="form-group input-group">
+                                    <label class="pl-3" for="doa">Date of Admission *</label>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="form-group input-group pl-3">
+                                   <input class="form-control" name="doa" id="doa" type="date" placeholder="Date of Admission" required maxlength="3">
+                                </div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>
+                                <div class="form-group input-group">
+                                    <label class="pl-3" for="typeofbed">Type of Bad *</label>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="form-group input-group pl-3">
+                                    <select class="form-control" id="typeofbed" name="typeofbed" required>
+                                        <option value="General ward">General ward</option>
+                                        <option value="Semi sharing">Semi sharing</option>
+                                        <option value="Single room">Single room</option>
+                                    </select>
+                                </div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>
+                                <div class="form-group input-group">
+                                    <label class="pl-3" for="address">Address *</label>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="form-group input-group pl-3">
+                                   <input class="form-control" name="address" id="address" type="textfield" placeholder="Address" required maxlength="100">
+                                </div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>
+                                <div class="form-group input-group">
+                                    <label class="pl-3" for="state">State *</label>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="form-group input-group pl-3">
+                                   <input class="form-control" name="state" id="state" type="textfield" placeholder="State" required maxlength="100">
+                                </div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th>
+                                <div class="form-group input-group">
+                                    <label class="pl-3" for="city">City *</label>
+                                </div>
+                            </th>
+                            <th>
+                                <div class="form-group input-group pl-3">
+                                   <input class="form-control" name="city" id="city" type="textfield" placeholder="City" required maxlength="100">
+                                </div>
+                            </th>
+                        </tr>
+
+                        <tr>
+                            <th>
+                                <label class="pl-3 notice">* Mandatory</label>
+                            </th>
+                            <th></th>
+                        </tr>
+                        <tr>
+                            <th>
+                                <div class="form-group input-group mt-3">
+                                    <input type="submit" value="Submit" class="btn mx-auto">
+                                </div>
+                            </th>
+                            <th>
+                                <div class="form-group input-group mt-3">
+                                    <input type="button" value="Reset" class="btn mx-auto reset_btn">
+                                </div>
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
             </form>
-        </div>
     </div>
 </div>
-
-
-
 
 {% endblock %}
