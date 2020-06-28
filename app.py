@@ -28,7 +28,8 @@ def db_create():
 # run flask db_drop command into terminal for drop all table from .db file
 @app.cli.command('db_drop')
 def db_drop():
-    SQLAlchemy(app).drop_all()
+    if os.path.exists("database.db"):
+        os.remove("database.db")
     print('Database droped.')
 
 # run flask db_seedData command into terminal for feed the initial user table data
@@ -65,6 +66,8 @@ def db_seedData():
     
 # all route starts from here
 @app.route('/')
+@app.route("/home")
+@app.route("/index")
 @app.route("/dashboard")
 def dashboard():
     return render_template("home.html", home=True)
@@ -81,13 +84,13 @@ def addpatient():
             id = int(request.form.get("ssn_id"))
             name = request.form.get("name")
             age= int(request.form.get("age"))
-            date = (request.form.get("Date_of_Admission"))
+            doa = datetime.strptime(request.form.get("Date_of_Admission"), '%Y-%m-%d').date()
             typeofbed = request.form.get("typeofbed")
             address = request.form.get("address")
             state = request.form.get("state")
             city = request.form.get("city")
             status = "Active"
-            query = Patients(id=id,name=name,age=age,DateofAdm =date,TypeofBed=typeofbed,address=address,state=state,city=city,status=status)
+            query = Patients(id=id,name=name,age=age,DateofAdm = doa,TypeofBed=typeofbed,address=address,state=state,city=city,status=status)
             db.add(query)
             db.commit()
             flash(f'patient with id - {id} is added successfully','primary')
