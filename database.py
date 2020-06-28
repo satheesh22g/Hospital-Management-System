@@ -2,7 +2,7 @@ import os
 import sys ,datetime
 from sqlalchemy import Column, ForeignKey, Integer, String, BigInteger
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import DateTime
+from sqlalchemy import DATE
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 Base = declarative_base()
@@ -19,7 +19,7 @@ class Patients(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(250),nullable=False)
     age = Column(Integer,nullable=False)
-    DateofAdm =  Column(String(250), nullable=False)
+    DateofAdm =  Column(DATE(), nullable=False)
     TypeofBed = Column(String(250), nullable=False)
     address = Column(String(250), nullable=False)
     state = Column(String(250), nullable=False)

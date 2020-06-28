@@ -4,7 +4,9 @@ body{
 .row{
     margin: 0;
 }
-
+select{
+    cursor: pointer;
+}
 .card{
     background-color: rgba(0,0,0,0.5);
 }
@@ -115,4 +117,38 @@ a{
 label.notice{
     font-size: 13px;
     font-weight: 400;
+}
+.pagination{
+    float: right;
+    margin: 10px 0;
+    cursor: pointer;
+}
+.pagination li {
+    background-color: white;
+    padding: 5px 20px;
+    border-radius: 5px;
+    margin: 0 1px;
+    border: 1px black solid;
+}
+.pagination li.active {
+    background-color: #b5b5b5;
+}
+#Table thead{
+    background-color: #353535;
+    color: white;
+}
+#Table tbody{
+    background-color: white;
+}
+.table-bordered tr, .table-bordered td, .table-bordered th{
+    border: 2px solid black;
+}
+.error_msg{
+    position: absolute;
+    right: 10px;
+    top: 8px;
+    color: red;
+    font-size: 12px;
+    font-weight: 400;
+    display: none;
 }
