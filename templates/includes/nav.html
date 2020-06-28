@@ -5,9 +5,9 @@
         <div class="subnavbtn">Patient <i class="fa fa-caret-down"></i></div>
         <div class="subnav-content">
           <a href="{{ url_for('addpatient') }}" class="nav-link {% if addpatient %}active{% endif %}">Add Patient</a>
+          <a href="{{ url_for('searchpatient') }}" class="nav-link {% if addcustomer %}active{% endif %}">Search Patient</a>
           <a href="{{ url_for('editpatient') }}" class="nav-link {% if editpatient %}active{% endif %}">Edit Patient</a>
-          <a href="{{ url_for('addpatient') }}" class="nav-link {% if addcustomer %}active{% endif %}">Add Patient</a>
-          <a href="{{ url_for('viewpatient') }}" class="nav-link {% if addcustomer %}active{% endif %}">View Patients</a>
+          <a href="{{ url_for('viewpatient') }}" class="nav-link {% if addcustomer %}active{% endif %}">View all Patients</a>
         </div>
       </div>
       <div class="subnav">

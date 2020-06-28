@@ -135,8 +135,21 @@ def viewpatient():
         flash("You don't have access to this page","warning")
         return redirect(url_for('dashboard'))
     if session['usert']=="RDE":
-        result = db.execute("select * from patients").fetchall()
+        result = db.execute("select * from patients where status = 'Active'").fetchall()
         return render_template('viewpatient.html', viewpatient=True,data=result)
+    else:
+        flash("You don't have access to this page","warning")
+        return redirect(url_for('dashboard'))
+
+@app.route("/searchpatient")
+def searchpatient():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    if session['usert'] != "RDE":
+        flash("You don't have access to this page","warning")
+        return redirect(url_for('dashboard'))
+    if session['usert']=="RDE":
+        return render_template('searchpatient.html', viewpatient=True)
     else:
         flash("You don't have access to this page","warning")
         return redirect(url_for('dashboard'))
