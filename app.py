@@ -99,33 +99,33 @@ def addpatient():
         flash(f'id is already present in database.','warning')
     return render_template("addpatient.html",addpatient=True)
 
-@app.route("/editpatient")
+@app.route("/editpatient",methods=['GET','POST'])
 def editpatient():
-    return render_template("editpatient.html",editpatient=True)
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    if session['usert'] != "RDE":
+        flash("You don't have access to this page","warning")
+        return redirect(url_for('dashboard'))
+    if session['usert'] == "RDE":
+        if request.method == "POST":
+            id = int(request.form.get("ssn_id"))
+            name = request.form.get("name")
+            age= int(request.form.get("age"))
+            doa = datetime.strptime(request.form.get("doa"), '%Y-%m-%d').date()
+            typeofbed = request.form.get("typeofbed")
+            address = request.form.get("address")
+            state = request.form.get("state")
+            city = request.form.get("city")
+            data = db.execute("select * from patients where id = :i and status='Active'",{'i':id}).fetchone()
+            if data:
+                db.execute("UPDATE patients SET name = :n, age = :ag, DateofAdm = :d, TypeofBed = :t, address = :ad, state = :s, city = :c WHERE id = :i", {"n": name,'ag':age,'d':doa,'t':typeofbed,"ad": address,'s':state,'c':city,"i": id})
+                db.commit()
+                flash(f"Patient data updated successfully.","success")
+                return redirect(url_for('dashboard'))
+        else:
+            flash('Invalid Patient Id. Please, check Patient Id.','warning')
 
-#     if 'user' not in session:
-#         return redirect(url_for('login'))
-#     if session['usert'] != "RDE":
-#         flash("You don't have access to this page","warning")
-#         return redirect(url_for('dashboard'))
-#     if request.method == "POST":
-#         id = int(request.form.get("ssn_id"))
-#         name = request.form.get("name")
-#         age= int(request.form.get("age"))
-#         date = request.form.get("Date_of_Admission")
-#         typeofbed = request.form.get("typeofbed")
-#         address = request.form.get("address")
-#         state = request.form.get("state")
-#         city = request.form.get("city")
-#         status = "Active"
-#         query = Patients(id=id,name=name,age=age,DateofAdm =date,TypeofBed=typeofbed,address=address,state=state,city=city,status=status)
-#         db.add(query)
-#         db.commit()
-#         return redirect(url_for('dashboard'))
-#     else:
-#         flash(f'is already present in database.','warning')
-#         # flash(f'SSN id : {id} is already present in database.','warning')
-#     return render_template("addpatient.html",addpatient=True)
+    return render_template("editpatient.html",editpatient=True)
 
 @app.route("/viewpatient")
 def viewpatient():
