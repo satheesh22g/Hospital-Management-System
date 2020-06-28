@@ -15,8 +15,9 @@ $(document).ready(function() {
 
     $('.reset_btn').click(function(event){
         event.preventDefault();
-        $("#cust_ssn_id")[0].value = "";
+        $("#ssn_id")[0].value = "";
         $("#name")[0].value = "";
+        $("#doa")[0].value = '';
         $("#address")[0].value = "";
         $("#age")[0].value = "";
         $("#state")[0].value = "";
@@ -100,6 +101,17 @@ $(document).ready(function() {
                 $('#edit_patient input[name=address]')[0].value = result.address
                 $('#edit_patient input[name=state]')[0].value = result.state
                 $('#edit_patient input[name=city]')[0].value = result.city
+            }
+        }
+    });
+    $('#add_patient #ssn_id').change(function (event) {
+        event.preventDefault()
+        id = event.target.value
+        if(!isNaN(parseInt(event.target.value)) && id.length==9){
+            result = getPatientData(id)
+            if(result['query_status']!='fail'){
+                alert('Patient ID already present, Please change your input')
+                event.target.value = ''
             }
         }
     });

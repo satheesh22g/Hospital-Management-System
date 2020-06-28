@@ -84,7 +84,7 @@ def addpatient():
             id = int(request.form.get("ssn_id"))
             name = request.form.get("name")
             age= int(request.form.get("age"))
-            doa = datetime.strptime(request.form.get("Date_of_Admission"), '%Y-%m-%d').date()
+            doa = datetime.strptime(request.form.get("doa"), '%Y-%m-%d').date()
             typeofbed = request.form.get("typeofbed")
             address = request.form.get("address")
             state = request.form.get("state")
@@ -122,8 +122,8 @@ def editpatient():
                 db.commit()
                 flash(f"Patient data updated successfully.","success")
                 return redirect(url_for('dashboard'))
-        else:
-            flash('Invalid Patient Id. Please, check Patient Id.','warning')
+            else:
+                flash('Invalid Patient Id. Please, check Patient Id.','warning')
 
     return render_template("editpatient.html",editpatient=True)
 
