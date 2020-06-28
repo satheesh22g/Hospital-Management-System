@@ -23,11 +23,29 @@ $(document).ready(function() {
         $("#city")[0].value = "";
     });
 
-    $('#cust_ssn_id, #age, #cust_id, #acc_id, #amount').keypress(function(event){
+    $('#ssn_id, #age, #amount').keypress(function(event){
         if(event.which = 8 && isNaN(String.fromCharCode(event.which))){
             event.preventDefault(); //stop character from entering input
         }
     })
+
+    $('#ssn_id, #age, #amount').change(function (event) {
+        event.preventDefault()
+        test = this.parentNode.children.item(1)
+        if(isNaN(parseInt(event.target.value))){
+            test.innerHTML='Only Digits allowed *'
+            test.style.display='block'
+            event.target.value=''
+        }
+        else{
+            test.style.display='none'
+            target = event.target
+            if(target.id == "ssn_id" && target.value.length != 9){
+                test.innerHTML='Required 9 digits *'
+                test.style.display='block'
+            }
+        }
+    });
 
     $('#name, #state, #city').keypress(function(event){
         if(!((event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || event.charCode==32)){
@@ -64,6 +82,28 @@ $(document).ready(function() {
             $('select.sel_type').not(this).val('current');
     });
 
+    $('#edit_patient #ssn_id').change(function (event) {
+        event.preventDefault()
+        id = event.target.value
+        if(!isNaN(parseInt(event.target.value)) && id.length==9){
+            result = getPatientData(id)
+            if(result['query_status']=='fail'){
+                alert('Invaild Patient ID, Please check your input')
+                event.target.value = ''
+            }
+            else{
+                $('#edit_patient input[name=ssn_id]')[0].value = result.id
+                $('#edit_patient input[name=name]')[0].value = result.name
+                $('#edit_patient input[name=age]')[0].value = result.age
+                $('#edit_patient input[name=doa]')[0].value = result.DateofAdm
+                $('#edit_patient select[name=typeofbed]')[0].value = result.TypeofBed
+                $('#edit_patient input[name=address]')[0].value = result.address
+                $('#edit_patient input[name=state]')[0].value = result.state
+                $('#edit_patient input[name=city]')[0].value = result.city
+            }
+        }
+    });
+
     $('.refresh').click(function(event){
         event.preventDefault()
         target = event.target
@@ -85,6 +125,23 @@ $(document).ready(function() {
         })
     })
 });
+
+function getPatientData(id){
+    var result_data = {}
+    var data = {"id": id}
+    $.ajax({
+        type: "GET",
+        url: "/api/v1/getPatientData",
+        dataType: 'json',
+        data: data,
+        async:false,
+    }).done(function(result){
+        result_data = result
+    }).fail(function(error){
+        result_data = error
+    })
+    return result_data
+}
 
 function getPagination(table) {
 

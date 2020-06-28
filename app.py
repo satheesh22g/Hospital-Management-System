@@ -101,7 +101,7 @@ def addpatient():
 
 @app.route("/editpatient")
 def editpatient():
-    return render_template("editpatient.html",addpatient=True)
+    return render_template("editpatient.html",editpatient=True)
 
 #     if 'user' not in session:
 #         return redirect(url_for('login'))
@@ -172,6 +172,66 @@ def login():
 def not_found(e):
   return render_template("404.html")
 
+# Api
+@app.route('/api')
+@app.route('/api/v1')
+def api():
+    return """
+    <h2>List of Api</h2>
+    <ol>
+        <li>
+            <a href="/api/v1/getPatientData">Patient Data</a>
+        </li>
+    </ol>
+    """
+
+# Api for update perticular customer log change in html table onClick of refresh
+@app.route('/getPatientData', methods=["GET"])
+@app.route('/api/v1/getPatientData', methods=["GET"])
+def getPatientData():
+    if 'user' not in session:
+        flash("Please login","warning")
+        return redirect(url_for('login'))
+    if request.method == "GET":
+        if 'id' in request.args:
+            id = request.args['id']
+            if id.strip():
+                data = db.execute("select * from patients where id = :i and status = 'Active'",{'i':id}).fetchone()
+                if data:
+                    result = {
+                        'id' : data.id,
+                        'name' : data.name,
+                        'age' : data.age,
+                        'DateofAdm' : data.DateofAdm,
+                        'TypeofBed' : data.TypeofBed,
+                        'address' : data.address,
+                        'state' : data.state,
+                        'city' : data.city,
+                        'status' : data.status
+                    }
+                    return jsonify(result)
+                else:
+                    return jsonify(message = 'data not found',query_status = 'fail')
+        else:
+            data = db.execute("select * from patients where status='Active'").fetchall()
+            dict_data = []
+            if data:
+                for row in data:
+                    t = {
+                        'id' : row.id,
+                        'name' : row.name,
+                        'age' : row.age,
+                        'DateofAdm' : row.DateofAdm,
+                        'TypeofBed' : row.TypeofBed,
+                        'address' : row.address,
+                        'state' : row.state,
+                        'city' : row.city,
+                        'status' : row.status
+                    }
+                    dict_data.append(t)
+                return jsonify(dict_data)
+            else:
+                return jsonify(message = 'data not found',query_status = 'fail')
 
 # Main
 if __name__ == '__main__':

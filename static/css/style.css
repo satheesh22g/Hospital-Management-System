@@ -130,6 +130,9 @@ label.notice{
     margin: 0 1px;
     border: 1px black solid;
 }
+.pagination li.active {
+    background-color: #b5b5b5;
+}
 #Table thead{
     background-color: #353535;
     color: white;
@@ -139,4 +142,13 @@ label.notice{
 }
 .table-bordered tr, .table-bordered td, .table-bordered th{
     border: 2px solid black;
+}
+.error_msg{
+    position: absolute;
+    right: 10px;
+    top: 8px;
+    color: red;
+    font-size: 12px;
+    font-weight: 400;
+    display: none;
 }
