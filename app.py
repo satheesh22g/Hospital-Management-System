@@ -69,12 +69,7 @@ def db_seedData():
 def dashboard():
     return render_template("home.html", home=True)
 
-<<<<<<< HEAD
-@app.route("/addpatient")
-=======
-
 @app.route("/addpatient", methods=["GET","POST"])
->>>>>>> Update Addpatient method
 def addpatient():
     if 'user' not in session:
         return redirect(url_for('login'))
@@ -128,6 +123,20 @@ def editpatient():
 #         flash(f'is already present in database.','warning')
 #         # flash(f'SSN id : {id} is already present in database.','warning')
 #     return render_template("addpatient.html",addpatient=True)
+
+@app.route("/viewpatient")
+def viewpatient():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    if session['usert'] != "RDE":
+        flash("You don't have access to this page","warning")
+        return redirect(url_for('dashboard'))
+    if session['usert']=="RDE":
+        result = db.execute("select * from patients").fetchall()
+        return render_template('viewpatient.html', viewpatient=True,data=result)
+    else:
+        flash("You don't have access to this page","warning")
+        return redirect(url_for('dashboard'))
 
 # Logout 
 @app.route("/logout")
