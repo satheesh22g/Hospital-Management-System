@@ -15,10 +15,7 @@
         <div class="subnavbtn">Pharmacy <i class="fa fa-caret-down"></i></div>
         {% if session['usert']=="pharmacist" %}
         <div class="subnav-content">
-          <a href="{{ url_for('addpatient') }}" class="nav-link {% if addcustomer %}active{% endif %}">Add Patient</a>
-          <a href="{{ url_for('addpatient') }}" class="nav-link {% if addcustomer %}active{% endif %}">Add Patient sdfsf</a>
-          <a href="{{ url_for('addpatient') }}" class="nav-link {% if addcustomer %}active{% endif %}">Add Patient</a>
-          <a href="{{ url_for('addpatient') }}" class="nav-link {% if addcustomer %}active{% endif %}">Add Patient</a>
+          <a href="{{ url_for('issuemedicines') }}" class="nav-link {% if addcustomer %}active{% endif %}">Issue Medicines</a>
         </div>
         {% endif %}
       </div>

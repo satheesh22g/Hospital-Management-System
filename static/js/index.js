@@ -1,59 +1,110 @@
 // keypress events to prevent entering Alphabets and special char
-$(document).on('keypress','input[name=ssn_id], input[name=age], input[name=amount], input[name=quantity]',function(event){
-    test = this.parentNode.children.item(1)
+$(document).on('keypress','#issue_med input[name=quantity]',function(event){
+    test = $(this).parent().find('.error_msg')
     if(event.which = 8 && isNaN(String.fromCharCode(event.which))){
         event.preventDefault(); //stop character from entering input
-        test.innerHTML='Only Digits allowed *'
-        test.style.display='block'
+        test.html('Only Digits allowed *')
+        test.css('display','block')
     }
     else{
-        test.style.display='none'
+        test.css('display','none')
+    }
+    if(event.target.name == 'quantity' && event.charCode == 13){
+        if($(this).hasClass('issue_med')){
+            event.preventDefault()
+            max = parseInt(event.target.dataset.max)
+            if(!isNaN(event.target.value)){
+                quantity = parseInt(event.target.value)
+                if(quantity >= max){
+                    alert('Medicine quantity not available!, Please change quantity.\nTotal available quantity = '+max)
+                }
+                else{
+                    rate = $(this).closest('tr').find('input[name=rate]').val()
+                    $(this).closest('tr').find('input[name=amount]').val((quantity * parseInt(rate)))
+                    $(this).closest('tr').find('input[name=amount]').attr("disabled",false)
+                }
+            }
+            else{
+                test.html('Only Digits allowed *')
+                test.css('display','block')
+                event.target.value=''
+            }
+        }
     }
 });
 
-// change events to check entered input is not aplphabets and special char
-$(document).on('change','input[name=ssn_id], input[name=age], input[name=amount], input[name=quantity]',function (event) {
+$(document).on('keypress copy cut paste keydown keyup','#issue_med input[name=amount],#issue_med input[name=rate]',function(event){
     event.preventDefault()
-    test = this.parentNode.children.item(1)
+});
+
+// change events to check entered input is not aplphabets and special char
+$(document).on('change','#issue_med input[name=quantity]',function (event) {
+    event.preventDefault()
+    test = $(this).parent().find('.error_msg')
     if(isNaN(parseInt(event.target.value))){
-        test.innerHTML='Only Digits allowed *'
-        test.style.display='block'
+        test.html('Only Digits allowed *')
+        test.css('display','block')
         event.target.value=''
     }
     else{
-        test.style.display='none'
+        test.css('display','none')
         target = event.target
         if(target.id == "ssn_id" && target.value.length != 9){
-            test.innerHTML='Required 9 digits *'
-            test.style.display='block'
+            test.html('Required 9 digits *')
+            test.css('display','block')
         }
     }
 });
 
 // keypress events to prevent entering numbers and special char
-$(document).on('keypress', 'input[name=state], input[name=city], input[name=name]', function(){
-    test = this.parentNode.children.item(1)
+$(document).on('keypress', '#issue_med input[name=name]', function(){
+    test = $(this).parent().find('.error_msg')
     if(!((event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || event.charCode==32 || event.charCode==13)){
         event.preventDefault(); //stop Number from entering input
-        test.innerHTML='Only Alphabets and Space allowed *'
-        test.style.display='block'
+        test.html('Only Alphabets and Space allowed *')
+        test.css('display','block')
     }
     else{
-        test.style.display='none'
+        test.css('display','none')
+    }
+    if(event.target.name == 'name' && event.charCode == 13){
+        if($(this).hasClass('issue_med')){
+            event.preventDefault()
+            name = event.target.value.trim().toLowerCase()
+            if(isNaN(name) && name.length>=2){
+                result = getMedicine(name)
+                if(result['query_status']=='fail'){
+                    alert('Medicine not found!, Please check your input')
+                    $(this).val(name)
+                }
+                else{
+                    $(this).val(result.name)
+                    $(this).closest('tr').find('input[name=rate]').val(result.rate)
+                    $(this).closest('tr').find('input[name=rate]').attr("disabled",false)
+                    $(this).closest('tr').find('input[name=quantity]').attr("data-max",result.quantity)
+                    $(this).closest('tr').find('input[name=quantity]').attr("disabled",false)
+                }
+            }
+            else{
+                test.html('Only Alphabets and Space allowed *')
+                test.css('display','block')
+                event.target.value=''
+            }
+        }
     }
 });
 
 // change events to check entered input is not numbers and special char
-$(document).on('change', 'input[name=state], input[name=city], input[name=name]', function(){
+$(document).on('change', '#issue_med input[name=name]', function(){
     event.preventDefault()
-    test = this.parentNode.children.item(1)
+    test = $(this).parent().find('.error_msg')
     if(!isNaN(event.target.value)){
-        test.innerHTML='Only Alphabets and Space allowed *'
-        test.style.display='block'
+        test.html('Only Alphabets and Space allowed *')
+        test.css('display','block')
         event.target.value=''
     }
     else{
-        test.style.display='none'
+        test.css('display','none')
     }
 });
 
@@ -70,6 +121,7 @@ $(document).on('change','#issue_med input[name=name]',function (event) {
         else{
             $(this).val(result.name)
             $(this).closest('tr').find('input[name=rate]').val(result.rate)
+            $(this).closest('tr').find('input[name=rate]').attr("disabled",false)
             $(this).closest('tr').find('input[name=quantity]').attr("data-max",result.quantity)
             $(this).closest('tr').find('input[name=quantity]').attr("disabled",false)
         }
@@ -86,17 +138,12 @@ $(document).on('change','#issue_med input[name=quantity]',function (event) {
             alert('Medicine quantity not available!, Please change quantity.\nTotal available quantity = '+max)
         }
         else{
-            rate = $('input[name=rate]').val()
+            rate = $(this).closest('tr').find('input[name=rate]').val()
             $(this).closest('tr').find('input[name=amount]').val((quantity * parseInt(rate)))
+            $(this).closest('tr').find('input[name=amount]').attr("disabled",false)
         }
     }
 });
-
-$(document).on('keypress','#issue_med input',function(event){
-    if(event.charCode == 13 && event.target.name=='quantity'){
-        event.preventDefault()
-    }
-})
 
 $(document).ready(function() {
 
@@ -123,9 +170,128 @@ $(document).ready(function() {
         $("input").val('');
     });
 
+    $('#ssn_id, #age, #amount').keypress(function(event){
+        test = $(this).parent().find('.error_msg')
+        if(event.which = 8 && isNaN(String.fromCharCode(event.which))){
+            event.preventDefault(); //stop character from entering input
+            test.html('Only Digits allowed *')
+            test.addClass("alert-danger")
+            test.addClass("alert")
+            test.css('display','block')
+        }
+        else{
+            test.css('display','none')
+        }
+        if(event.target.id == 'ssn_id' && event.target.value.length == 9 && event.charCode == 13){
+            if($(this).hasClass('issue_med')){
+                event.preventDefault()
+                id = event.target.value
+                if(!isNaN(parseInt(event.target.value))){
+                    result = getPatientData(id)
+                    if(result['query_status']=='fail'){
+                        alert('Patient ID not found!, Please check your input')
+                        event.target.value = ''
+                    }
+                    else{
+                        $(this).val(result.id)
+                        $(this).closest('tr').find('.p_name').html(result.name)
+                        $(this).closest('tr').find('.p_age').html(result.age)
+                        $(this).closest('tr').find('.p_doa').html(result.DateofAdm)
+                        $(this).closest('tr').find('.p_tob').html(result.TypeofBed)
+                        $(this).closest('tr').find('.p_address').html(result.address+','+result.city+','+result.state)
+                    }
+                }
+                else{
+                    test.html('Only Digits allowed *')
+                    test.addClass("alert-danger")
+                    test.addClass("alert")
+                    test.css('display','block')
+                    event.target.value=''
+                }
+            }
+            else{
+                event.preventDefault()
+                id = event.target.value
+                if(!isNaN(parseInt(event.target.value))){
+                    result = getPatientData(id)
+                    if(result['query_status']=='fail'){
+                        alert('Patient ID not found!, Please check your input')
+                        event.target.value = ''
+                    }
+                    else{
+                        $(this).val(result.id)
+                        $(this).closest('tbody').find('input[name=name]').val(result.name)
+                        $(this).closest('tbody').find('input[name=age]').val(result.age)
+                        $(this).closest('tbody').find('input[name=doa]').val(result.DateofAdm)
+                        $(this).closest('tbody').find('select[name=typeofbed]').val(result.TypeofBed)
+                        $(this).closest('tbody').find('input[name=address]').val(result.address)
+                        $(this).closest('tbody').find('input[name=state]').val(result.state)
+                        $(this).closest('tbody').find('input[name=city]').val(result.city)
+                    }
+                }
+                else{
+                    test.html('Only Digits allowed *')
+                    test.addClass("alert-danger")
+                    test.addClass("alert")
+                    test.css('display','block')
+                    event.target.value=''
+                }
+            }
+        }
+    })
+
+    $('#ssn_id, #age, #amount').change(function (event) {
+        event.preventDefault()
+        test = $(this).parent().find('.error_msg')
+        if(isNaN(parseInt(event.target.value))){
+            test.html('Only Digits allowed *')
+            test.addClass("alert-danger")
+            test.addClass("alert")
+            test.css('display','block')
+            event.target.value=''
+        }
+        else{
+            test.css('display','none')
+            target = event.target
+            if(target.id == "ssn_id" && target.value.length != 9){
+                test.html('Required 9 digits *')
+                test.css('display','block')
+            }
+        }
+    });
+
+    $('#name, #state, #city').keypress(function(event){
+        test = $(this).parent().find('.error_msg')
+        if(!((event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || event.charCode==32)){
+            event.preventDefault(); //stop Number from entering input
+            test.html('Only Alphabets and Space allowed *')
+            test.addClass("alert-danger")
+            test.addClass("alert")
+            test.css('display','block')
+        }
+        else{
+            test.css('display','none')
+        }
+    })
+
+    $('#name, #state, #city').change(function (event) {
+        event.preventDefault()
+        test = $(this).parent().find('.error_msg')
+        if(!isNaN(event.target.value)){
+            test.html('Only Alphabets and Space allowed *')
+            test.addClass("alert-danger")
+            test.addClass("alert")
+            test.css('display','block')
+            event.target.value=''
+        }
+        else{
+            test.css('display','none')
+        }
+    });
+
     $('#issue_med .add_row').click(function(event){
         event.preventDefault()
-        temp = '<tr><td><div><input class="form-control" name="name" type="textfield" placeholder="Medicine Name" required minlength="2" maxlength="50"><span class="error_msg" style="position: inherit;"></span></div></td><td><div><input class="form-control" name="quantity" type="textfield" placeholder="Quantity" required min="1" minlength="1" maxlength="3"><span class="error_msg" style="position: inherit;"></span></div></td><td><input class="form-control" name="rate" type="textfield" required disabled></td><td><input class="form-control" name="amount" type="textfield" required disabled></td></tr>'
+        temp = '<tr> <td> <div> <input class="form-control issue_med" name="name" type="textfield" placeholder="Medicine Name" required minlength="2" maxlength="50"> <span class="error_msg" style="position: inherit;"></span> </div> </td> <td> <div> <input class="form-control issue_med" name="quantity" type="textfield" placeholder="Quantity" disabled required min="1" minlength="1" maxlength="3"> <span class="error_msg" style="position: inherit;"></span> </div> </td> <td><input class="form-control" name="rate" type="textfield" required disabled></td> <td><input class="form-control" name="amount" type="textfield" required disabled></td> </tr>'
         $('#issue_med tbody').append(temp)
     })
 
@@ -169,13 +335,13 @@ $(document).ready(function() {
             }
             else{
                 $(this).val(result.id)
-                $(this).closest('tr').find('input[name=ssn_id]').val(result.name)
-                $(this).closest('tr').find('input[name=age]').val(result.age)
-                $(this).closest('tr').find('input[name=doa]').val(result.DateofAdm)
-                $(this).closest('tr').find('select[name=typeofbed]').val(result.TypeofBed)
-                $(this).closest('tr').find('input[name=address]').val(result.address)
-                $(this).closest('tr').find('input[name=state]').val(result.state)
-                $(this).closest('tr').find('input[name=city]').val(result.city)
+                $(this).closest('tbody').find('input[name=name]').val(result.name)
+                $(this).closest('tbody').find('input[name=age]').val(result.age)
+                $(this).closest('tbody').find('input[name=doa]').val(result.DateofAdm)
+                $(this).closest('tbody').find('select[name=typeofbed]').val(result.TypeofBed)
+                $(this).closest('tbody').find('input[name=address]').val(result.address)
+                $(this).closest('tbody').find('input[name=state]').val(result.state)
+                $(this).closest('tbody').find('input[name=city]').val(result.city)
             }
         }
     });

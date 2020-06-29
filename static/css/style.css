@@ -145,11 +145,12 @@ label.notice{
 }
 .error_msg{
     position: absolute;
-    right: 10px;
-    top: 8px;
-    color: red;
+    right: -137px;
+    top: 6px;
+    padding: 3px 10px;
     font-size: 12px;
     font-weight: 400;
+    color: red;
     display: none;
 }
 .btn{

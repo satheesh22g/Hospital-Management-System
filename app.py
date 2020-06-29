@@ -3,7 +3,7 @@ from flask import Flask, session, render_template, request, redirect, url_for, f
 from flask_bcrypt import Bcrypt
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
-from database import Base,Users,Patients,Medicines
+from database import Base,Users,Patients,Medicines,MedHist
 from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import scoped_session, sessionmaker
 from datetime import datetime
@@ -202,9 +202,23 @@ def issuemedicines():
     if session['usert']=="pharmacist":
         if request.method == 'POST':
             id = request.form.get('ssn_id')
-            for name, rate in zip(request.form.getlist('name'),request.form.getlist('quantity')):
-                print(id,name,rate)
-                
+            for name,quantity,rate,amount in zip(
+                request.form.getlist('name'),
+                request.form.getlist('quantity'),
+                request.form.getlist('rate'),
+                request.form.getlist('amount')
+                ):
+                query = MedHist(
+                    patient_id = id,
+                    med_name = name,
+                    med_quantity = quantity,
+                    med_rate = rate,
+                    med_amount = amount
+                )
+                db.add(query)
+                db.commit()
+
+            flash('Medicine Issued successfully','success')
         
         return render_template('issuemedicines.html', issuemedicines=True)
     else:
