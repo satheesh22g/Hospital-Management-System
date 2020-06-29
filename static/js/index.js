@@ -199,6 +199,17 @@ $(document).ready(function() {
                         $(this).closest('tr').find('.p_doa').html(result.DateofAdm)
                         $(this).closest('tr').find('.p_tob').html(result.TypeofBed)
                         $(this).closest('tr').find('.p_address').html(result.address+','+result.city+','+result.state)
+
+                        medhist = getMedHist(result.id)
+                        if(medhist['query_status']=='fail'){
+                        }
+                        else{
+                            $('#med_issued').find('tbody').html('')
+                            medhist.forEach(i => {
+                                temp = '<tr><td><div class="m_name">'+i.name+'</div></td><td><div class="m_quantity">'+i.quantity+'</div></td><td><div class="m_rate">'+i.rate+'</div></td><td><div class="m_amount">'+i.amount+'</div></td></tr>'
+                                $('#med_issued').find('tbody').append(temp)
+                            });
+                        }
                     }
                 }
                 else{
@@ -362,6 +373,17 @@ $(document).ready(function() {
                 $(this).closest('tr').find('.p_doa').html(result.DateofAdm)
                 $(this).closest('tr').find('.p_tob').html(result.TypeofBed)
                 $(this).closest('tr').find('.p_address').html(result.address+','+result.city+','+result.state)
+
+                medhist = getMedHist(result.id)
+                if(medhist['query_status']=='fail'){
+                }
+                else{
+                    $('#med_issued').find('tbody').html('')
+                    medhist.forEach(i => {
+                        temp = '<tr><td><div class="m_name">'+i.name+'</div></td><td><div class="m_quantity">'+i.quantity+'</div></td><td><div class="m_rate">'+i.rate+'</div></td><td><div class="m_amount">'+i.amount+'</div></td></tr>'
+                        $('#med_issued').find('tbody').append(temp)
+                    });
+                }
             }
         }
     });
@@ -399,6 +421,24 @@ $(document).ready(function() {
         })
     })
 });
+
+// function for get patient medicine histry data using ajax by passing patient ID
+function getMedHist(id){
+    var result_data = {}
+    var data = {"id": id}
+    $.ajax({
+        type: "GET",
+        url: "/api/v1/getmedhist",
+        dataType: 'json',
+        data: data,
+        async:false,
+    }).done(function(result){
+        result_data = result
+    }).fail(function(error){
+        result_data = error
+    })
+    return result_data
+}
 
 // function for get patient data using ajax by passing patient ID
 function getPatientData(id){

@@ -208,15 +208,29 @@ def issuemedicines():
                 request.form.getlist('rate'),
                 request.form.getlist('amount')
                 ):
-                query = MedHist(
-                    patient_id = id,
-                    med_name = name,
-                    med_quantity = quantity,
-                    med_rate = rate,
-                    med_amount = amount
-                )
-                db.add(query)
-                db.commit()
+                data = db.execute('select * from medicines where name = :n',{'n':name}).fetchone()
+                if data and int(data.quantity) >= int(quantity):
+                    new_quantity = int(data.quantity) - int(quantity)
+                    db.execute("UPDATE medicines SET quantity = :q WHERE name = :n", {'q':new_quantity,"n": name})
+                    db.commit()
+                    data = db.execute('select * from medhist where patient_id = :i and med_name = :n',{'i':id,'n':name}).fetchone()
+                    if data:
+                        new_quantity = int(data.med_quantity) + int(quantity)
+                        new_amount = int(data.med_rate) * new_quantity
+                        db.execute("UPDATE medhist SET med_quantity = :q, med_amount = :a WHERE patient_id = :i and med_name = :n", {'q':new_quantity,'a':new_amount,'i':id,"n": name})
+                        db.commit()
+                    else:
+                        query = MedHist(
+                            patient_id = id,
+                            med_name = name,
+                            med_quantity = quantity,
+                            med_rate = rate,
+                            med_amount = amount
+                        )
+                        db.add(query)
+                        db.commit()
+                else:
+                    flash('Medicine Not found! or Insufficient Quantity','warning')
 
             flash('Medicine Issued successfully','success')
         
@@ -266,6 +280,7 @@ def api():
         <li>
             <a href="/api/v1/getPatientData">Patient Data</a>
             <a href="/api/v1/getmedicine">Get Medicines</a>
+            <a href="/api/v1/getmedhist">Get Patient Medicines history</a>
         </li>
     </ol>
     """
@@ -354,6 +369,53 @@ def getmedicine():
                             'name' : row.name,
                             'quantity' : row.quantity,
                             'rate' : row.rate
+                        }
+                        dict_data.append(t)
+                    return jsonify(dict_data)
+                else:
+                    return jsonify(message = 'data not found',query_status = 'fail')
+
+# Api for get patient medicine history data
+@app.route('/getmedhist', methods=["GET"])
+@app.route('/api/v1/getmedhist', methods=["GET"])
+def getmedhist():
+    if 'user' not in session:
+        flash("Please login","warning")
+        return redirect(url_for('login'))
+    if session['usert'] != "pharmacist":
+        flash("You don't have access to this page","warning")
+        return redirect(url_for('dashboard'))
+    if session['usert']=="pharmacist":
+        if request.method == "GET":
+            if 'id' in request.args:
+                id = request.args['id']
+                if id.strip():
+                    data = db.execute("select * from medhist where patient_id = :i",{'i':id}).fetchall()
+                    dict_data = []
+                    if data:
+                        for row in data:
+                            t = {
+                                'name' : row.med_name,
+                                'quantity' : row.med_quantity,
+                                'rate' : row.med_rate,
+                                'amount' : row.med_amount,
+                            }
+                            dict_data.append(t)
+                        return jsonify(dict_data)
+                    else:
+                        return jsonify(message = 'data not found',query_status = 'fail')
+            else:
+                data = db.execute("select * from medhist limit 100").fetchall()
+                dict_data = []
+                if data:
+                    for row in data:
+                        t = {
+                            'id' : row.id,
+                            'patient_id' : row.patient_id,
+                            'med_name' : row.med_name,
+                            'med_quantity' : row.med_quantity,
+                            'med_rate' : row.med_rate,
+                            'med_amount' : row.med_amount,
                         }
                         dict_data.append(t)
                     return jsonify(dict_data)
