@@ -158,3 +158,11 @@ label.notice{
     border-radius: 20px;
     padding: 10px 25px;
 }
+#issue_med{
+    display: none;
+}
+.add_row{
+    position: absolute;
+    right: -125px;
+    top: 70px;
+}

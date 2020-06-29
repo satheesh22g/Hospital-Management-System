@@ -3,7 +3,7 @@ from flask import Flask, session, render_template, request, redirect, url_for, f
 from flask_bcrypt import Bcrypt
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
-from database import Base,Users,Patients
+from database import Base,Users,Patients,Medicines
 from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import scoped_session, sessionmaker
 from datetime import datetime
@@ -62,7 +62,45 @@ def db_seedData():
     db.add(diagnostics_executive)
 
     db.commit()
-    print('Inital data added.')
+    print('Inital User data added.')
+
+# run flask db_seed_med command into terminal for feed the initial medicine table data
+@app.cli.command('db_seed_med')
+def db_seed_med():
+    med1 = Medicines(
+        name="acebutolol",
+        quantity = 150,
+        rate = 50
+    )
+    med2 = Medicines(
+        name="corgard",
+        quantity = 150,
+        rate = 2000
+    )
+    med3 = Medicines(
+        name="tenormin",
+        quantity = 150,
+        rate = 100
+    )
+    med4 = Medicines(
+        name="paracetamol",
+        quantity = 150,
+        rate = 10
+    )
+    med5 = Medicines(
+        name="dio",
+        quantity = 150,
+        rate = 50
+    )
+
+    db.add(med1)
+    db.add(med2)
+    db.add(med3)
+    db.add(med4)
+    db.add(med5)
+
+    db.commit()
+    print('Inital Medicine data added.')
     
 # all route starts from here
 @app.route('/')
@@ -154,6 +192,25 @@ def searchpatient():
         flash("You don't have access to this page","warning")
         return redirect(url_for('dashboard'))
 
+@app.route("/issuemedicines",methods=['GET','POST'])
+def issuemedicines():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    if session['usert'] != "pharmacist":
+        flash("You don't have access to this page","warning")
+        return redirect(url_for('dashboard'))
+    if session['usert']=="pharmacist":
+        if request.method == 'POST':
+            id = request.form.get('ssn_id')
+            for name, rate in zip(request.form.getlist('name'),request.form.getlist('quantity')):
+                print(id,name,rate)
+                
+        
+        return render_template('issuemedicines.html', issuemedicines=True)
+    else:
+        flash("You don't have access to this page","warning")
+        return redirect(url_for('dashboard'))
+
 # Logout 
 @app.route("/logout")
 def logout():
@@ -194,11 +251,12 @@ def api():
     <ol>
         <li>
             <a href="/api/v1/getPatientData">Patient Data</a>
+            <a href="/api/v1/getmedicine">Get Medicines</a>
         </li>
     </ol>
     """
 
-# Api for update perticular customer log change in html table onClick of refresh
+# Api for fetch patient data
 @app.route('/getPatientData', methods=["GET"])
 @app.route('/api/v1/getPatientData', methods=["GET"])
 def getPatientData():
@@ -245,6 +303,48 @@ def getPatientData():
                 return jsonify(dict_data)
             else:
                 return jsonify(message = 'data not found',query_status = 'fail')
+
+# Api for get medicine data
+@app.route('/getmedicine', methods=["GET"])
+@app.route('/api/v1/getmedicine', methods=["GET"])
+def getmedicine():
+    if 'user' not in session:
+        flash("Please login","warning")
+        return redirect(url_for('login'))
+    if session['usert'] != "pharmacist":
+        flash("You don't have access to this page","warning")
+        return redirect(url_for('dashboard'))
+    if session['usert']=="pharmacist":
+        if request.method == "GET":
+            if 'name' in request.args:
+                name = request.args['name']
+                if name.strip():
+                    data = db.execute("select * from medicines where name = :n and quantity >= 1",{'n':name}).fetchone()
+                    if data:
+                        result = {
+                            'id' : data.id,
+                            'name' : data.name,
+                            'quantity' : data.quantity,
+                            'rate' : data.rate
+                        }
+                        return jsonify(result)
+                    else:
+                        return jsonify(message = 'data not found',query_status = 'fail')
+            else:
+                data = db.execute("select * from medicines where quantity >= 1").fetchall()
+                dict_data = []
+                if data:
+                    for row in data:
+                        t = {
+                            'id' : row.id,
+                            'name' : row.name,
+                            'quantity' : row.quantity,
+                            'rate' : row.rate
+                        }
+                        dict_data.append(t)
+                    return jsonify(dict_data)
+                else:
+                    return jsonify(message = 'data not found',query_status = 'fail')
 
 # Main
 if __name__ == '__main__':

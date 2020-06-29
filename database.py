@@ -25,6 +25,13 @@ class Patients(Base):
     state = Column(String(250), nullable=False)
     city = Column(String(250), nullable=False)
     status = Column(String(250), nullable=False)
+
+class Medicines(Base):
+    __tablename__='medicines'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(250),nullable=False,unique=True)
+    quantity = Column(Integer,nullable=False)
+    rate = Column(Integer,nullable=False)
     
 engine = create_engine('sqlite:///database.db')
 Base.metadata.create_all(engine)

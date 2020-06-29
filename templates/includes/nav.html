@@ -1,35 +1,39 @@
 <div class="navbar col-sm-8 mx-auto">
   {% if session['user'] %}
-    {% if session['usert']=="RDE" %}
       <div class="subnav">
         <div class="subnavbtn">Patient <i class="fa fa-caret-down"></i></div>
+        {% if session['usert']=="RDE" %}
         <div class="subnav-content">
           <a href="{{ url_for('addpatient') }}" class="nav-link {% if addpatient %}active{% endif %}">Add Patient</a>
           <a href="{{ url_for('searchpatient') }}" class="nav-link {% if addcustomer %}active{% endif %}">Search Patient</a>
           <a href="{{ url_for('editpatient') }}" class="nav-link {% if editpatient %}active{% endif %}">Edit Patient</a>
           <a href="{{ url_for('viewpatient') }}" class="nav-link {% if addcustomer %}active{% endif %}">View all Patients</a>
         </div>
+        {% endif %}
       </div>
       <div class="subnav">
         <div class="subnavbtn">Pharmacy <i class="fa fa-caret-down"></i></div>
+        {% if session['usert']=="pharmacist" %}
         <div class="subnav-content">
           <a href="{{ url_for('addpatient') }}" class="nav-link {% if addcustomer %}active{% endif %}">Add Patient</a>
           <a href="{{ url_for('addpatient') }}" class="nav-link {% if addcustomer %}active{% endif %}">Add Patient sdfsf</a>
           <a href="{{ url_for('addpatient') }}" class="nav-link {% if addcustomer %}active{% endif %}">Add Patient</a>
           <a href="{{ url_for('addpatient') }}" class="nav-link {% if addcustomer %}active{% endif %}">Add Patient</a>
         </div>
+        {% endif %}
       </div>
       <div class="subnav">
         <div class="subnavbtn">Diagnostics <i class="fa fa-caret-down"></i></div>
+        {% if session['usert']=="DSE" %}
         <div class="subnav-content">
           <a href="{{ url_for('addpatient') }}" class="nav-link {% if addcustomer %}active{% endif %}">Add Patient</a>
           <a href="{{ url_for('addpatient') }}" class="nav-link {% if addcustomer %}active{% endif %}">Add Patient sdfsf</a>
           <a href="{{ url_for('addpatient') }}" class="nav-link {% if addcustomer %}active{% endif %}">Add Patient</a>
           <a href="{{ url_for('addpatient') }}" class="nav-link {% if addcustomer %}active{% endif %}">Add Patient</a>
         </div>
+        {% endif %}
       </div>
      
-    {% endif %}
     <a href="{{ url_for('logout') }}" class="nav-link">Logout</a>
   {% endif %}
 </div>
