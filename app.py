@@ -294,9 +294,8 @@ def api():
 @app.route('/api/v1/getPatientData', methods=["GET"])
 def getPatientData():
     if 'user' not in session:
-        flash("Please login","warning")
-        return redirect(url_for('login'))
-    if request.method == "GET":
+        return jsonify(message = 'You need to login for access this api.',query_status = 'fail')
+    else:
         if 'id' in request.args:
             id = request.args['id']
             if id.strip():
@@ -315,7 +314,9 @@ def getPatientData():
                     }
                     return jsonify(result)
                 else:
-                    return jsonify(message = 'data not found',query_status = 'fail')
+                    return jsonify(message = 'Patient data not found or Patient discharged',query_status = 'fail')
+            else:
+                return jsonify(message = 'Must Required Patient id',query_status = 'fail')
         else:
             data = db.execute("select * from patients where status='Active'").fetchall()
             dict_data = []
@@ -342,27 +343,27 @@ def getPatientData():
 @app.route('/api/v1/getmedicine', methods=["GET"])
 def getmedicine():
     if 'user' not in session:
-        flash("Please login","warning")
-        return redirect(url_for('login'))
+        return jsonify(message = 'You need to login for access this api.',query_status = 'fail')
     if session['usert'] != "pharmacist":
-        flash("You don't have access to this page","warning")
-        return redirect(url_for('dashboard'))
+        return jsonify(message = "You don't have access to this api",query_status = 'fail')
     if session['usert']=="pharmacist":
         if request.method == "GET":
             if 'name' in request.args:
                 name = request.args['name']
                 if name.strip():
-                    data = db.execute("select * from medicines where name = :n and quantity >= 1",{'n':name}).fetchone()
+                    data = db.execute("select * from medicines where name = :n and quantity >= 1",{'n':name.lower()}).fetchone()
                     if data:
                         result = {
                             'id' : data.id,
-                            'name' : data.name,
+                            'name' : data.name.lower(),
                             'quantity' : data.quantity,
                             'rate' : data.rate
                         }
                         return jsonify(result)
                     else:
-                        return jsonify(message = 'data not found',query_status = 'fail')
+                        return jsonify(message = 'Medicine data not found',query_status = 'fail')
+                else:
+                    return jsonify(message = 'Must Required Medicine name',query_status = 'fail')
             else:
                 data = db.execute("select * from medicines where quantity >= 1").fetchall()
                 dict_data = []
@@ -384,11 +385,9 @@ def getmedicine():
 @app.route('/api/v1/getmedhist', methods=["GET"])
 def getmedhist():
     if 'user' not in session:
-        flash("Please login","warning")
-        return redirect(url_for('login'))
+        return jsonify(message = 'You need to login for access this api.',query_status = 'fail')
     if session['usert'] != "pharmacist":
-        flash("You don't have access to this page","warning")
-        return redirect(url_for('dashboard'))
+        return jsonify(message = "You don't have access to this api",query_status = 'fail')
     if session['usert']=="pharmacist":
         if request.method == "GET":
             if 'id' in request.args:
@@ -407,7 +406,9 @@ def getmedhist():
                             dict_data.append(t)
                         return jsonify(dict_data)
                     else:
-                        return jsonify(message = 'data not found',query_status = 'fail')
+                        return jsonify(message = 'Medicine history data not found',query_status = 'fail')
+                else:
+                    return jsonify(message = 'Must Required Patient id',query_status = 'fail')
             else:
                 data = db.execute("select * from medhist limit 100").fetchall()
                 dict_data = []
@@ -424,7 +425,7 @@ def getmedhist():
                         dict_data.append(t)
                     return jsonify(dict_data)
                 else:
-                    return jsonify(message = 'data not found',query_status = 'fail')
+                    return jsonify(message = 'Medicine history data not found',query_status = 'fail')
 
 # Main
 if __name__ == '__main__':

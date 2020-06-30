@@ -37,7 +37,7 @@ class MedHist(Base):
     __tablename__='medhist'
     id = Column(Integer, primary_key=True, autoincrement=True)
     patient_id = Column(Integer, ForeignKey('patients.id'))
-    med_name = Column(String(250),ForeignKey('medicines.name'))
+    med_name = Column(String(250),nullable=False)
     med_quantity = Column(Integer,nullable=False)
     med_rate = Column(Integer,nullable=False)
     med_amount = Column(Integer,nullable=False)

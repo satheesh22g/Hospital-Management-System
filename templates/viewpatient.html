@@ -18,35 +18,30 @@
     </div>
     
     <div class="row col-md-12 col-xs-12 mt-3">
-        <div class="table-responsive">
+        <div class="table-responsive text-center">
             <table class="table table-striped table-hover table-condensed table-bordered" id="Table">
                 <thead>
                 <tr class="info">
 
-                    <th>    Patient Id</th>
-                    <th>   Patient Name</th>
-                    <th>  Age</th>
-                    <th>  Date of Admission</th>
-                    <th>  Type of Bed</th>
-                    <th>    address</th>
-                    <th> State</th>
-                    <th>City</th>
-                    <th>Status</th>
+                    <th>Patient Id</th>
+                    <th>Patient Name</th>
+                    <th>Age</th>
+                    <th>address</th>
+                    <th>Date of Admission</th>
+                    <th>Type of Bed</th>
                       
                 </tr>
                 </thead>
                 <tbody id="TablaFamilias">
                     {% for i in data %}
                     <tr>
-                      <td> {{ i.id }}</td>
-                      <td>  {{ i.name }}</td>
-                      <td>  {{ i.age }}</td>
-                      <td>  {{ i.DateofAdm }}</td>
-                      <td>   {{ i.TypeofBed }}</td>
-                      <td>     {{ i.address }}</td>
-                      <td>{{ i.state }}</td>
-                      <td>{{i.city}}</td>
-                      <td>{{i.status}}</td>
+                      <td>{{ i.id }}</td>
+                      <td>{{ i.name }}</td>
+                      <td>{{ i.age }}</td>
+                      <td>{{ i.address }},{{i.city}},{{ i.state }}</td>
+                      <td>{{ i.DateofAdm }}</td>
+                      <td>{{ i.TypeofBed }}</td>
+                      
                     </tr>
                  
                       
