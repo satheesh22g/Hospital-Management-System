@@ -25,6 +25,22 @@ class Patients(Base):
     state = Column(String(250), nullable=False)
     city = Column(String(250), nullable=False)
     status = Column(String(250), nullable=False)
+
+class Medicines(Base):
+    __tablename__='medicines'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(250),nullable=False,unique=True)
+    quantity = Column(Integer,nullable=False)
+    rate = Column(Integer,nullable=False)
+
+class MedHist(Base):
+    __tablename__='medhist'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    patient_id = Column(Integer, ForeignKey('patients.id'))
+    med_name = Column(String(250),nullable=False)
+    med_quantity = Column(Integer,nullable=False)
+    med_rate = Column(Integer,nullable=False)
+    med_amount = Column(Integer,nullable=False)
     
 engine = create_engine('sqlite:///database.db')
 Base.metadata.create_all(engine)
