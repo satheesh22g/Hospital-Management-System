@@ -202,39 +202,43 @@ def issuemedicines():
     if session['usert']=="pharmacist":
         if request.method == 'POST':
             id = request.form.get('ssn_id')
-            for name,quantity,rate,amount in zip(
-                request.form.getlist('name'),
-                request.form.getlist('quantity'),
-                request.form.getlist('rate'),
-                request.form.getlist('amount')
-                ):
-                data = db.execute('select * from medicines where name = :n',{'n':name}).fetchone()
-                if data and int(data.quantity) >= int(quantity):
-                    new_quantity = int(data.quantity) - int(quantity)
-                    db.execute("UPDATE medicines SET quantity = :q WHERE name = :n", {'q':new_quantity,"n": name})
-                    db.commit()
-                    data = db.execute('select * from medhist where patient_id = :i and med_name = :n',{'i':id,'n':name}).fetchone()
-                    if data:
-                        new_quantity = int(data.med_quantity) + int(quantity)
-                        new_amount = int(data.med_rate) * new_quantity
-                        db.execute("UPDATE medhist SET med_quantity = :q, med_amount = :a WHERE patient_id = :i and med_name = :n", {'q':new_quantity,'a':new_amount,'i':id,"n": name})
-                        db.commit()
+            patient_data = db.execute('select * from patients where id = :i and status = "Active"',{'i':id}).fetchone()
+            if patient_data:
+                for name,quantity,rate,amount in zip( request.form.getlist('name'), request.form.getlist('quantity'), request.form.getlist('rate'), request.form.getlist('amount') ):
+                    med_data = db.execute('select * from medicines where lower(name) = :n',{'n':name.lower()}).fetchone()
+                    if med_data and int(med_data.quantity) >= int(quantity):
+                        try:
+                            new_quantity = int(med_data.quantity) - int(quantity)
+                            db.execute("UPDATE medicines SET quantity = :q WHERE lower(name) = :n", {'q':new_quantity,"n": med_data.name.lower()})
+                            hist_data = db.execute('select * from medhist where patient_id = :i and lower(med_name) = :n',{'i':patient_data.id,'n':med_data.name.lower()}).fetchone()
+                            if hist_data:
+                                new_quantity = int(hist_data.med_quantity) + int(quantity)
+                                new_amount = int(hist_data.med_amount) + ( int(med_data.rate) * int(quantity) )
+                                db.execute("UPDATE medhist SET med_quantity = :q, med_amount = :a WHERE patient_id = :i and lower(med_name) = :n", {'q':new_quantity,'a':new_amount,'i':hist_data.patient_id,"n": hist_data.med_name.lower()})
+                            else:
+                                query = MedHist(
+                                    patient_id = id,
+                                    med_name = med_data.name.lower(),
+                                    med_quantity = int(quantity),
+                                    med_rate = int(med_data.rate),
+                                    med_amount = int(med_data.rate) * int(quantity)
+                                )
+                                db.add(query)
+                        except:
+                            db.rollback()
+                            flash(f'Opps!! Something went wrong with input {name}. Please check your input or try after some time','danger')
+                            continue
+                        else:
+                            db.commit()
                     else:
-                        query = MedHist(
-                            patient_id = id,
-                            med_name = name,
-                            med_quantity = quantity,
-                            med_rate = rate,
-                            med_amount = amount
-                        )
-                        db.add(query)
-                        db.commit()
+                        flash(f'Medicine {name} Not found! or Insufficient Quantity','warning')
                 else:
-                    flash('Medicine Not found! or Insufficient Quantity','warning')
+                    flash('Medicine Issued successfully','success')
+            else:
+                flash('Patient not found or discharged','warning')
 
-            flash('Medicine Issued successfully','success')
-        
         return render_template('issuemedicines.html', issuemedicines=True)
+
     else:
         flash("You don't have access to this page","warning")
         return redirect(url_for('dashboard'))
