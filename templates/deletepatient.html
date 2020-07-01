@@ -1,0 +1,126 @@
+{% extends "layout.html" %}
+
+{% block title %}Delete Patient{% endblock %}
+
+{% block content %}
+<div class = "col-md-8 mx-auto">
+    <h1 class="text-center">Detete Patient </h1>
+    <div class="mt-5 text-center">
+        <form action="{{ url_for('deletepatient') }}" method="POST" id="edit_patient">
+            <table class="col-sm-9 mx-auto" id="edit_patient">
+                <tbody>
+                    <tr>
+                        <th>
+                            <div class="form-group input-group">
+                                <label class="pl-3" for="ssn_id">Patient ID *</label>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="form-group input-group pl-3">
+                                <input class="form-control" name="ssn_id" id="ssn_id" type="textfield" placeholder="Patient ID" required minlength="9" maxlength="9">
+                                <span class="error_msg"></span>
+                                </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>
+                            <div class="form-group input-group">
+                                <label class="pl-3" for="name">Patient Name</label>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="form-group input-group pl-3">
+                                <input class="form-control" name="name" id="name" type="textfield" placeholder="Patient Name" disabled maxlength="50">
+                            </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>
+                            <div class="form-group input-group">
+                                <label class="pl-3" for="age">Patient Age</label>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="form-group input-group pl-3">
+                                <input class="form-control" name="age" id="age" type="textfield" placeholder="Patient Age" disabled maxlength="3">
+                                <span class="error_msg"></span>
+                            </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>
+                            <div class="form-group input-group">
+                                <label class="pl-3" for="doa">Date of Admission</label>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="form-group input-group pl-3">
+                                <input class="form-control" name="doa" id="doa" type="date" placeholder="Date of Admission" disabled maxlength="3">
+                            </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>
+                            <div class="form-group input-group">
+                                <label class="pl-3" for="typeofbed">Type of Bad</label>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="form-group input-group pl-3">
+                                <select class="form-control" id="typeofbed" name="typeofbed" disabled required>
+                                    <option value="General ward">General ward</option>
+                                    <option value="Semi sharing">Semi sharing</option>
+                                    <option value="Single room">Single room</option>
+                                </select>
+                            </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>
+                            <div class="form-group input-group">
+                                <label class="pl-3" for="address">Address</label>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="form-group input-group pl-3">
+                                <input class="form-control" name="address" id="address" type="textfield" placeholder="Address" disabled maxlength="100">
+                            </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>
+                            <div class="form-group input-group">
+                                <label class="pl-3" for="state">State</label>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="form-group input-group pl-3">
+                                <input class="form-control" name="state" id="state" type="textfield" placeholder="State" disabled maxlength="100">
+                            </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>
+                            <div class="form-group input-group">
+                                <label class="pl-3" for="city">City</label>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="form-group input-group pl-3">
+                                <input class="form-control" name="city" id="city" type="textfield" placeholder="City" disabled maxlength="100">
+                            </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th colspan="2">
+                            <div class="form-group input-group mt-4">
+                                <input type="submit" value="Discharge" class="btn mx-auto">
+                            </div>
+                        </th>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -215,10 +215,67 @@ def searchpatient():
         flash("You don't have access to this page","warning")
         return redirect(url_for('dashboard'))
     if session['usert']=="RDE":
-        return render_template('searchpatient.html', viewpatient=True)
+        return render_template('searchpatient.html', searchpatient=True)
     else:
         flash("You don't have access to this page","warning")
         return redirect(url_for('dashboard'))
+
+@app.route("/deletepatient",methods=['GET','POST'])
+def deletepatient():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    if session['usert'] != "RDE":
+        flash("You don't have access to this page","warning")
+        return redirect(url_for('dashboard'))
+    if session['usert']=="RDE":
+        if request.method == 'POST':
+            id = request.form.get('ssn_id')
+            patient_data = db.execute('select * from patients where id = :i and status = "Active"',{'i':id}).fetchone()
+            if patient_data:
+                med_hist_data = db.execute('select * from medhist where patient_id = :i',{'i':patient_data.id}).fetchall()
+                med_data = []
+                if med_hist_data:
+                    for row in med_hist_data:
+                        t = {
+                            'name' : row.med_name,
+                            'quantity' : row.med_quantity,
+                            'rate' : row.med_rate,
+                            'amount' : row.med_amount,
+                        }
+                        med_data.append(t)
+                diagno_hist_data = db.execute("select * from diahist where patient_id = :i",{'i':patient_data.id}).fetchall()
+                diagno_data = []
+                if diagno_hist_data:
+                    for row in diagno_hist_data:
+                        t = {
+                            'name' : row.dia_name,
+                            'count' : row.dia_count,
+                            'amount' : row.dia_amount,
+                        }
+                        diagno_data.append(t)
+
+                return render_template('raisebill.html', p_data=patient_data, m_data=med_data, d_data=diagno_data)
+            else:
+                flash('Patient not found or discharged','warning')
+
+        return render_template('deletepatient.html', deletepatient=True)
+    else:
+        flash("You don't have access to this page","warning")
+        return redirect(url_for('dashboard'))
+
+@app.route('/raisebill')
+def raisebill():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    if session['usert'] != "RDE":
+        flash("You don't have access to this page","warning")
+        return redirect(url_for('dashboard'))
+    if session['usert']=="RDE":
+        if request.method == 'POST':
+            print()
+        
+        return render_template('raisebill.html', raisebill=True)
+
 
 @app.route("/issuemedicines",methods=['GET','POST'])
 def issuemedicines():
@@ -463,9 +520,7 @@ def getmedicine():
 def getmedhist():
     if 'user' not in session:
         return jsonify(message = 'You need to login for access this api.',query_status = 'fail')
-    if session['usert'] != "pharmacist":
-        return jsonify(message = "You don't have access to this api",query_status = 'fail')
-    if session['usert']=="pharmacist":
+    if session['usert']=="pharmacist" or session['usert']=="RDE":
         if request.method == "GET":
             if 'id' in request.args:
                 id = request.args['id']
@@ -503,6 +558,9 @@ def getmedhist():
                     return jsonify(dict_data)
                 else:
                     return jsonify(message = 'Medicine history data not found',query_status = 'fail')
+
+    else:
+        return jsonify(message = "You don't have access to this api",query_status = 'fail')
 
 # Api for get medicine data
 @app.route('/getdiagnostic', methods=["GET"])
@@ -550,9 +608,7 @@ def getdiagnostic():
 def getdiahist():
     if 'user' not in session:
         return jsonify(message = 'You need to login for access this api.',query_status = 'fail')
-    if session['usert'] != "DSE":
-        return jsonify(message = "You don't have access to this api",query_status = 'fail')
-    if session['usert']=="DSE":
+    if session['usert']=="DSE" or session['usert'] == "RDE":
         if request.method == "GET":
             if 'id' in request.args:
                 id = request.args['id']
@@ -588,7 +644,9 @@ def getdiahist():
                     return jsonify(dict_data)
                 else:
                     return jsonify(message = 'Diagnostics history data not found',query_status = 'fail')
-
+    
+    else:
+        return jsonify(message = "You don't have access to this api",query_status = 'fail')
 
 # Main
 if __name__ == '__main__':
