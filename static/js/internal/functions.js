@@ -22,6 +22,30 @@ function getMedHist(ele,id){
     })
 }
 
+// function for get patient diagnostics histry data using ajax by passing patient ID
+function getDiaHist(ele,id){
+  var data = {"id": id}
+  $.ajax({
+      type: "GET",
+      url: "/api/v1/getdiahist",
+      dataType: 'json',
+      data: data,
+      async:false,
+  }).done(function(result){
+    $('#diagno_conduct').find('tbody').html('')
+    if(result.query_status == 'fail'){
+    }
+    else{
+      result.forEach(i => {
+          temp = '<tr><td><div class="d_name">'+i.name+'</div></td><td><div class="d_count">'+i.count+'</div></td><td><div class="d_amount">'+i.amount+'</div></td></tr>'
+          $('#diagno_conduct').find('tbody').append(temp)
+      });
+    }
+  }).fail(function(error){
+      alert('error')
+  })
+}
+
 // function for get patient data using ajax by passing patient ID
 function getPatientData(ele,id){
     var data = {"id": id}
@@ -40,8 +64,11 @@ function getPatientData(ele,id){
             $("input[type=date]").val('');
             $("input[type=number]").val('');
             
-            if($('#med_issued')){
-              $('#med_issued').find('tbody').html('')
+            if( $('#med_issued').length || $('#diagno_conduct').length ){
+              if($('#med_issued').length)
+                $('#med_issued').find('tbody').html('')
+              else if($('#diagno_conduct').length)
+                $('#diagno_conduct').find('tbody').html('')
               $('.p_name').html('')
               $('.p_age').html('')
               $('.p_doa').html('')
@@ -51,15 +78,20 @@ function getPatientData(ele,id){
           }
         }
         else{
-            if($(ele).hasClass('issue_med')){
+            if($(ele).hasClass('issue_med') || $(ele).hasClass('add_diagno')){
                 $(ele).val(result.id)
                 $(ele).closest('tr').find('.p_name').html(result.name)
                 $(ele).closest('tr').find('.p_age').html(result.age)
                 $(ele).closest('tr').find('.p_doa').html(result.DateofAdm)
                 $(ele).closest('tr').find('.p_tob').html(result.TypeofBed)
                 $(ele).closest('tr').find('.p_address').html(result.address+','+result.city+','+result.state)
-
-                getMedHist(ele,result.id)
+                
+                if($(ele).hasClass('issue_med')){
+                  getMedHist(ele,result.id)
+                }
+                else if($(ele).hasClass('add_diagno')){
+                  getDiaHist(ele,result.id)
+                }
             }
             else if($(ele).hasClass('add_patient')){
               alert('Paitent Id already present, Please change your input')
@@ -106,6 +138,30 @@ function getMedicine(ele,name){
     }).fail(function(error){
         alert('error')
     })
+}
+
+// function for get Diagnostics data using ajax by passing medicine Name
+function getDiagnostic(ele,name){
+  var data = {"name": name}
+  $.ajax({
+      type: "GET",
+      url: "/api/v1/getdiagnostic",
+      dataType: 'json',
+      data: data,
+      async:false,
+  }).done(function(result){
+    if(result.query_status == 'fail'){
+      alert(result.message)
+      $(ele).val('')
+    }
+    else{
+      $(ele).val(result.name)
+      $(ele).closest('tr').find('input[name=amount]').val(result.charge)
+      $(ele).closest('tr').find('input[name=amount]').attr("disabled",false)
+    }
+  }).fail(function(error){
+      alert('error')
+  })
 }
 
 // function for get Pagination on the page where we have multiple row table data

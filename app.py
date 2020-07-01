@@ -271,8 +271,8 @@ def issuemedicines():
         flash("You don't have access to this page","warning")
         return redirect(url_for('dashboard'))
 
-@app.route("/Diagnostics",methods=['GET','POST'])
-def Diagnostics():
+@app.route("/addDiagnostics",methods=['GET','POST'])
+def addDiagnostics():
     if 'user' not in session:
         return redirect(url_for('login'))
     if session['usert'] != "DSE":
@@ -283,19 +283,20 @@ def Diagnostics():
             id = request.form.get('ssn_id')
             patient_data = db.execute('select * from patients where id = :i and status = "Active"',{'i':id}).fetchone()
             if patient_data:
-                for name,charge,amount in zip( request.form.getlist('name'), request.form.getlist('charge'), request.form.getlist('amount') ):
+                for name,amount in zip( request.form.getlist('name'), request.form.getlist('amount') ):
                     med_data = db.execute('select * from diagnostics where lower(name) = :n',{'n':name.lower()}).fetchone()
                     if med_data:
                         try:
                             hist_data = db.execute('select * from diahist where patient_id = :i and lower(dia_name) = :n',{'i':patient_data.id,'n':med_data.name.lower()}).fetchone()
                             if hist_data:
                                 new_amount = int(hist_data.dia_amount) + int(med_data.charge)
-                                db.execute("UPDATE diahist SET med_amount = :a WHERE patient_id = :i and lower(med_name) = :n", {'a':new_amount,'i':hist_data.patient_id,"n": hist_data.dia_name.lower()})
+                                new_count = int(hist_data.dia_count) + 1
+                                db.execute("UPDATE diahist SET dia_amount = :a, dia_count = :c WHERE patient_id = :i and lower(dia_name) = :n", {'a':new_amount,'c':new_count,'i':hist_data.patient_id,"n": hist_data.dia_name.lower()})
                             else:
-                                query = MedHist(
+                                query = DiaHist(
                                     patient_id = id,
                                     dia_name = med_data.name.lower(),
-                                    dia_charge = int(med_data.charge),
+                                    dia_count = 1,
                                     dia_amount = int(med_data.charge)
                                 )
                                 db.add(query)
@@ -306,9 +307,9 @@ def Diagnostics():
                         else:
                             db.commit()
                     else:
-                        flash(f'Medicine {name} Not found! or Insufficient Quantity','warning')
+                        flash(f'Diagnostic {name} Not found! or Insufficient Quantity','warning')
                 else:
-                    flash('Medicine Issued successfully','success')
+                    flash('Diagnostics added successfully','success')
             else:
                 flash('Patient not found or discharged','warning')
 
@@ -427,7 +428,7 @@ def getmedicine():
             if 'name' in request.args:
                 name = request.args['name']
                 if name.strip():
-                    data = db.execute("select * from medicines where name = :n and quantity >= 1",{'n':name.lower()}).fetchone()
+                    data = db.execute("select * from medicines where lower(name) = :n and quantity >= 1",{'n':name.lower()}).fetchone()
                     if data:
                         result = {
                             'id' : data.id,
@@ -516,7 +517,7 @@ def getdiagnostic():
             if 'name' in request.args:
                 name = request.args['name']
                 if name.strip():
-                    data = db.execute("select * from diagnostics where name = :n;",{'n':name.lower()}).fetchone()
+                    data = db.execute("select * from diagnostics where lower(name) = :n;",{'n':name.lower()}).fetchone()
                     if data:
                         result = {
                             'id' : data.id,
@@ -562,7 +563,7 @@ def getdiahist():
                         for row in data:
                             t = {
                                 'name' : row.dia_name,
-                                'charge' : row.dia_charge,
+                                'count' : row.dia_count,
                                 'amount' : row.dia_amount,
                             }
                             dict_data.append(t)
@@ -579,15 +580,14 @@ def getdiahist():
                         t = {
                             'id' : row.id,
                             'patient_id' : row.patient_id,
-                            'dia_name' : row.med_name,
-                            
-                            'dia_charge' : row.dia_charge,
+                            'dia_name' : row.dia_name,
+                            'dia_count' : row.dia_count,
                             'dia_amount' : row.dia_amount,
                         }
                         dict_data.append(t)
                     return jsonify(dict_data)
                 else:
-                    return jsonify(message = 'Medicine history data not found',query_status = 'fail')
+                    return jsonify(message = 'Diagnostics history data not found',query_status = 'fail')
 
 
 # Main

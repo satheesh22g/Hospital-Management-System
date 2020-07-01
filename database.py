@@ -53,7 +53,7 @@ class DiaHist(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     patient_id = Column(Integer, ForeignKey('patients.id'))
     dia_name = Column(String(250),nullable=False)
-    dia_charge = Column(Integer,nullable=False)
+    dia_count = Column(Integer,nullable=False)
     dia_amount = Column(Integer,nullable=False)
     
 engine = create_engine('sqlite:///database.db')

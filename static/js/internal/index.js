@@ -33,7 +33,7 @@ $(document).on('keypress','#issue_med input[name=quantity]',function(event){
     }
 });
 
-$(document).on('keypress copy cut paste keydown keyup','#issue_med input[name=amount],#issue_med input[name=rate]',function(event){
+$(document).on('keypress copy cut paste keydown keyup','#issue_med input[name=amount],#issue_med input[name=rate],#add_diagno input[name=amount]',function(event){
     event.preventDefault()
 });
 
@@ -57,7 +57,7 @@ $(document).on('change','#issue_med input[name=quantity]',function (event) {
 });
 
 // keypress events to prevent entering numbers and special char
-$(document).on('keypress', '#issue_med input[name=name]', function(){
+$(document).on('keypress', '#issue_med input[name=name], #add_diagno input[name=name]', function(){
     test = $(this).parent().find('.error_msg')
     if(!((event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || event.charCode==32 || event.charCode==13)){
         event.preventDefault(); //stop Number from entering input
@@ -73,6 +73,18 @@ $(document).on('keypress', '#issue_med input[name=name]', function(){
             name = event.target.value.trim().toLowerCase()
             if(isNaN(name) && name.length>=2){
                 getMedicine(this,name)
+            }
+            else{
+                test.html('Only Alphabets and Space allowed *')
+                test.css('display','block')
+                event.target.value=''
+            }
+        }
+        else if($(this).hasClass('add_diagno')){
+            event.preventDefault()
+            name = event.target.value.trim().toLowerCase()
+            if(isNaN(name) && name.length>=2){
+                getDiagnostic(this,name)
             }
             else{
                 test.html('Only Alphabets and Space allowed *')
@@ -98,11 +110,16 @@ $(document).on('change', '#issue_med input[name=name]', function(){
 });
 
 // on change of medicine name fetch medicine data
-$(document).on('change','#issue_med input[name=name]',function (event) {
+$(document).on('change','#issue_med input[name=name], #add_diagno input[name=name]',function (event) {
     event.preventDefault()
     name = event.target.value.trim().toLowerCase()
     if(isNaN(name) && name.length>=2){
-        getMedicine(this,name)
+        if($(this).hasClass('issue_med')){
+            getMedicine(this,name)
+        }
+        else if($(this).hasClass('add_diagno')){
+            getDiagnostic(this,name)
+        }
     }
 });
 
@@ -143,9 +160,16 @@ $(document).ready(function() {
         $('#issue_med').css('display','block')
     })
 
+    $('input[type=button].add_diagno').click(function(event){
+        event.preventDefault()
+        $('#add_diagno').css('display','block')
+    })
+
     $('.reset_btn').click(function(event){
         event.preventDefault();
-        $("input").val('');
+        $("input[type=textfield]").val('');
+        $("input[type=date]").val('');
+        $("input[type=number]").val('');
     });
 
     $('#ssn_id, #age, #amount').keypress(function(event){
@@ -231,40 +255,11 @@ $(document).ready(function() {
         $('#issue_med tbody').append(temp)
     })
 
-    $('#issue_med .add_row1').click(function(event){
+    $('#add_diagno .add_row').click(function(event){
         event.preventDefault()
-        temp = '<tr> <td> <div> <input class="form-control issue_med" name="name" type="textfield" placeholder="Name" required minlength="2" maxlength="50"> <span class="error_msg" style="position: inherit;"></span> </div> </td><td><input class="form-control" name="charge" placeholder="charge" type="textfield" required disabled></td> <td><input class="form-control" name="amount" type="textfield" required disabled></td> </tr>'
-        $('#issue_med tbody').append(temp)
+        temp = '<tr> <td> <div> <input class="form-control add_diagno" name="name" type="textfield" placeholder="Name" required minlength="2" maxlength="50"> <span class="error_msg" style="position: inherit;"></span> </div> </td> <td><input class="form-control" name="amount" type="textfield" required disabled></td> </tr>'
+        $('#add_diagno tbody').append(temp)
     })
-
-    $('#view_cust').validate({
-        rules: {
-            cust_id: {
-                required: '#cust_ssn_id:blank'
-            },
-            cust_ssn_id: {
-                required: '#cust_id:blank'
-            }
-          }
-    })
-
-    $('#view_acc').validate({
-        rules: {
-            cust_id: {
-                required: '#acc_id:blank'
-            },
-            acc_id: {
-                required: '#cust_id:blank'
-            }
-          }
-    })
-
-    $('select.sel_type').change(function () {
-        if (this.value == 'current')
-            $('select.sel_type').not(this).val('savings');
-        if (this.value == 'savings')
-            $('select.sel_type').not(this).val('current');
-    });
 
     $('#edit_patient input[name=ssn_id]').change(function (event) {
         event.preventDefault()
@@ -274,7 +269,7 @@ $(document).ready(function() {
         }
     });
 
-    $('input[name=ssn_id].issue_med').change(function (event) {
+    $('input[name=ssn_id].issue_med, input[name=ssn_id].add_diagno').change(function (event) {
         event.preventDefault()
         id = event.target.value
         if(!isNaN(parseInt(event.target.value)) && id.length==9){
@@ -289,25 +284,4 @@ $(document).ready(function() {
             getPatientData(this,id)
         }
     });
-
-    $('.refresh').click(function(event){
-        event.preventDefault()
-        target = event.target
-        cust_id = parseInt(target.dataset.cust_id)
-        var data = {"cust_id": cust_id}
-        $.ajax({
-            type: "POST",
-            url: "/api/v1/customerlog",
-            dataType: 'json',
-            data: JSON.stringify(data),
-            contentType:"application/json; charset=UTF-8"
-        }).done(function(result){
-            console.log(result)
-            parrent_ele = target.parentElement.parentElement
-            parrent_ele.children[2].innerHTML = result.message
-            parrent_ele.children[3].innerHTML = result.date
-        }).fail(function(error){
-            console.log(error)
-        })
-    })
 });
