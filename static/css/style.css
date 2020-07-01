@@ -159,7 +159,7 @@ label.notice{
     border-radius: 20px;
     padding: 10px 25px;
 }
-#issue_med{
+#issue_med, #add_diagno{
     display: none;
 }
 .add_row{
