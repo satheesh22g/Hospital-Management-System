@@ -93,6 +93,7 @@ function getPatientData(ele,id){
                   getDiaHist(ele,result.id)
                 }
                 else if($(ele).hasClass('raise_bill')){
+                  $(ele).closest('tr').find('input[type=date]').attr('disabled',false)
                   getMedHist(ele,result.id)
                   getDiaHist(ele,result.id)
                 }
