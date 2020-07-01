@@ -41,6 +41,20 @@ class MedHist(Base):
     med_quantity = Column(Integer,nullable=False)
     med_rate = Column(Integer,nullable=False)
     med_amount = Column(Integer,nullable=False)
+
+class Diagnostics(Base):
+    __tablename__='diagnostics'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(250),nullable=False,unique=True)
+    charge = Column(Integer,nullable=False)
+
+class DiaHist(Base):
+    __tablename__='diahist'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    patient_id = Column(Integer, ForeignKey('patients.id'))
+    dia_name = Column(String(250),nullable=False)
+    dia_charge = Column(Integer,nullable=False)
+    dia_amount = Column(Integer,nullable=False)
     
 engine = create_engine('sqlite:///database.db')
 Base.metadata.create_all(engine)

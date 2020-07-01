@@ -231,6 +231,12 @@ $(document).ready(function() {
         $('#issue_med tbody').append(temp)
     })
 
+    $('#issue_med .add_row1').click(function(event){
+        event.preventDefault()
+        temp = '<tr> <td> <div> <input class="form-control issue_med" name="name" type="textfield" placeholder="Name" required minlength="2" maxlength="50"> <span class="error_msg" style="position: inherit;"></span> </div> </td><td><input class="form-control" name="charge" placeholder="charge" type="textfield" required disabled></td> <td><input class="form-control" name="amount" type="textfield" required disabled></td> </tr>'
+        $('#issue_med tbody').append(temp)
+    })
+
     $('#view_cust').validate({
         rules: {
             cust_id: {

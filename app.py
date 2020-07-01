@@ -3,7 +3,7 @@ from flask import Flask, session, render_template, request, redirect, url_for, f
 from flask_bcrypt import Bcrypt
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
-from database import Base,Users,Patients,Medicines,MedHist
+from database import Base,Users,Patients,Medicines,MedHist,Diagnostics,DiaHist
 from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import scoped_session, sessionmaker
 from datetime import datetime
@@ -101,7 +101,35 @@ def db_seed_med():
 
     db.commit()
     print('Inital Medicine data added.')
+
+# run flask db_seed_diagno command into terminal for feed the initial medicine table data
+@app.cli.command('db_seed_diagno')
+def db_seed_diagno():
+    d1 = Diagnostics(
+        name="CBP",
+        charge = 2000
+    )
+    d2 = Diagnostics(
+        name="Lipid",
+        charge = 1500
+    )
+    d3 = Diagnostics(
+        name="ECG",
+        charge = 3000
+    )
+    d4 = Diagnostics(
+        name="Echo",
+        charge = 4000
+    )
     
+
+    db.add(d1)
+    db.add(d2)
+    db.add(d3)
+    db.add(d4)
+    db.commit()
+    print('Inital Diagnotic data added.')
+
 # all route starts from here
 @app.route('/')
 @app.route("/home")
@@ -242,6 +270,54 @@ def issuemedicines():
     else:
         flash("You don't have access to this page","warning")
         return redirect(url_for('dashboard'))
+
+@app.route("/Diagnostics",methods=['GET','POST'])
+def Diagnostics():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    if session['usert'] != "DSE":
+        flash("You don't have access to this page","warning")
+        return redirect(url_for('dashboard'))
+    if session['usert']=="DSE":
+        if request.method == 'POST':
+            id = request.form.get('ssn_id')
+            patient_data = db.execute('select * from patients where id = :i and status = "Active"',{'i':id}).fetchone()
+            if patient_data:
+                for name,charge,amount in zip( request.form.getlist('name'), request.form.getlist('charge'), request.form.getlist('amount') ):
+                    med_data = db.execute('select * from diagnostics where lower(name) = :n',{'n':name.lower()}).fetchone()
+                    if med_data:
+                        try:
+                            hist_data = db.execute('select * from diahist where patient_id = :i and lower(dia_name) = :n',{'i':patient_data.id,'n':med_data.name.lower()}).fetchone()
+                            if hist_data:
+                                new_amount = int(hist_data.dia_amount) + int(med_data.charge)
+                                db.execute("UPDATE diahist SET med_amount = :a WHERE patient_id = :i and lower(med_name) = :n", {'a':new_amount,'i':hist_data.patient_id,"n": hist_data.dia_name.lower()})
+                            else:
+                                query = MedHist(
+                                    patient_id = id,
+                                    dia_name = med_data.name.lower(),
+                                    dia_charge = int(med_data.charge),
+                                    dia_amount = int(med_data.charge)
+                                )
+                                db.add(query)
+                        except:
+                            db.rollback()
+                            flash(f'Opps!! Something went wrong with input {name}. Please check your input or try after some time','danger')
+                            continue
+                        else:
+                            db.commit()
+                    else:
+                        flash(f'Medicine {name} Not found! or Insufficient Quantity','warning')
+                else:
+                    flash('Medicine Issued successfully','success')
+            else:
+                flash('Patient not found or discharged','warning')
+
+        return render_template('diagnostics.html', diagnostics=True)
+
+    else:
+        flash("You don't have access to this page","warning")
+        return redirect(url_for('dashboard'))
+
 
 # Logout 
 @app.route("/logout")
@@ -426,6 +502,93 @@ def getmedhist():
                     return jsonify(dict_data)
                 else:
                     return jsonify(message = 'Medicine history data not found',query_status = 'fail')
+
+# Api for get medicine data
+@app.route('/getdiagnostic', methods=["GET"])
+@app.route('/api/v1/getdiagnostic', methods=["GET"])
+def getdiagnostic():
+    if 'user' not in session:
+        return jsonify(message = 'You need to login for access this api.',query_status = 'fail')
+    if session['usert'] != "DSE":
+        return jsonify(message = "You don't have access to this api",query_status = 'fail')
+    if session['usert']=="DSE":
+        if request.method == "GET":
+            if 'name' in request.args:
+                name = request.args['name']
+                if name.strip():
+                    data = db.execute("select * from diagnostics where name = :n;",{'n':name.lower()}).fetchone()
+                    if data:
+                        result = {
+                            'id' : data.id,
+                            'name' : data.name.lower(),
+                            'charge' : data.charge
+                        }
+                        return jsonify(result)
+                    else:
+                        return jsonify(message = 'Diagnostic data not found',query_status = 'fail')
+                else:
+                    return jsonify(message = 'Must Required diagnostic name',query_status = 'fail')
+            else:
+                data = db.execute("select * from diagnostics").fetchall()
+                dict_data = []
+                if data:
+                    for row in data:
+                        t = {
+                            'id' : row.id,
+                            'name' : row.name,
+                            'charge' : row.charge
+                        }
+                        dict_data.append(t)
+                    return jsonify(dict_data)
+                else:
+                    return jsonify(message = 'data not found',query_status = 'fail')
+
+# Api for get patient medicine history data
+@app.route('/getdiahist', methods=["GET"])
+@app.route('/api/v1/getdiahist', methods=["GET"])
+def getdiahist():
+    if 'user' not in session:
+        return jsonify(message = 'You need to login for access this api.',query_status = 'fail')
+    if session['usert'] != "DSE":
+        return jsonify(message = "You don't have access to this api",query_status = 'fail')
+    if session['usert']=="DSE":
+        if request.method == "GET":
+            if 'id' in request.args:
+                id = request.args['id']
+                if id.strip():
+                    data = db.execute("select * from diahist where patient_id = :i",{'i':id}).fetchall()
+                    dict_data = []
+                    if data:
+                        for row in data:
+                            t = {
+                                'name' : row.dia_name,
+                                'charge' : row.dia_charge,
+                                'amount' : row.dia_amount,
+                            }
+                            dict_data.append(t)
+                        return jsonify(dict_data)
+                    else:
+                        return jsonify(message = 'Diagnostics history data not found',query_status = 'fail')
+                else:
+                    return jsonify(message = 'Must Required Patient id',query_status = 'fail')
+            else:
+                data = db.execute("select * from diahist limit 100").fetchall()
+                dict_data = []
+                if data:
+                    for row in data:
+                        t = {
+                            'id' : row.id,
+                            'patient_id' : row.patient_id,
+                            'dia_name' : row.med_name,
+                            
+                            'dia_charge' : row.dia_charge,
+                            'dia_amount' : row.dia_amount,
+                        }
+                        dict_data.append(t)
+                    return jsonify(dict_data)
+                else:
+                    return jsonify(message = 'Medicine history data not found',query_status = 'fail')
+
 
 # Main
 if __name__ == '__main__':
