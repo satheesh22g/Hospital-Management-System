@@ -78,7 +78,7 @@ function getPatientData(ele,id){
           }
         }
         else{
-            if($(ele).hasClass('issue_med') || $(ele).hasClass('add_diagno')){
+            if($(ele).hasClass('issue_med') || $(ele).hasClass('add_diagno') || $(ele).hasClass('raise_bill')){
                 $(ele).val(result.id)
                 $(ele).closest('tr').find('.p_name').html(result.name)
                 $(ele).closest('tr').find('.p_age').html(result.age)
@@ -90,6 +90,10 @@ function getPatientData(ele,id){
                   getMedHist(ele,result.id)
                 }
                 else if($(ele).hasClass('add_diagno')){
+                  getDiaHist(ele,result.id)
+                }
+                else if($(ele).hasClass('raise_bill')){
+                  getMedHist(ele,result.id)
                   getDiaHist(ele,result.id)
                 }
             }
