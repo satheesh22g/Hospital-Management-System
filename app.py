@@ -446,6 +446,8 @@ def api():
             <a href="/api/v1/getPatientData">Patient Data</a>
             <a href="/api/v1/getmedicine">Get Medicines</a>
             <a href="/api/v1/getmedhist">Get Patient Medicines history</a>
+            <a href="/api/v1/getdiagnostic">Get Available Diagnostic details</a>
+            <a href="/api/v1/getdiahist">Get Patient Diagnostic history</a>
         </li>
     </ol>
     """
