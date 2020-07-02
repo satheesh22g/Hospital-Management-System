@@ -17,6 +17,7 @@ class Users(Base):
 class Patients(Base):
     __tablename__='patients'
     id = Column(Integer, primary_key=True, autoincrement=True)
+    ssn_id = Column(Integer,nullable=False)
     name = Column(String(250),nullable=False)
     age = Column(Integer,nullable=False)
     DateofAdm =  Column(DATE(), nullable=False)
@@ -55,6 +56,13 @@ class DiaHist(Base):
     dia_name = Column(String(250),nullable=False)
     dia_count = Column(Integer,nullable=False)
     dia_amount = Column(Integer,nullable=False)
+
+class Checkout(Base):
+    __tablename__ = 'checkout'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    patient_id = Column(Integer, ForeignKey('patients.id'))
+    date_discharge = Column(DATE(), nullable=False)
+    total_amount = Column(Integer,nullable=False)
     
 engine = create_engine('sqlite:///database.db')
 Base.metadata.create_all(engine)

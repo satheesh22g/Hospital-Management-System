@@ -33,7 +33,7 @@ $(document).on('keypress','#issue_med input[name=quantity]',function(event){
     }
 });
 
-$(document).on('keypress copy cut paste keydown keyup','#issue_med input[name=amount],#issue_med input[name=rate],#add_diagno input[name=amount]',function(event){
+$(document).on('keypress copy cut paste keydown keyup','#issue_med input[name=amount],#issue_med input[name=rate],#add_diagno input[name=amount],input[name=total_amount].raise_bill',function(event){
     event.preventDefault()
 });
 
@@ -171,6 +171,54 @@ $(document).ready(function() {
         $("input[type=date]").val('');
         $("input[type=number]").val('');
     });
+
+    $('input[name=dod].raise_bill').change(function(event){
+        // code for calculate day difference
+        d1 = $(this).closest('tr').find('.p_doa').html()
+        d2 = event.target.value
+        date1 = new Date(d1)
+        date2 = new Date(d2)
+        one_day = 1000 * 60 *60 * 24
+        day_diff = (date2.getTime() - date1.getTime())/ one_day
+
+        $(this).closest('.table-responsive').find('.nub_days').append(day_diff)
+        
+        // code for calculate room charges
+        room_charge = 0
+        b_type = $(this).closest('tr').find('.p_tob').html()
+
+        if(b_type.toLowerCase() == 'single room'){
+            room_charge = day_diff * 8000
+        }
+        else if(b_type.toLowerCase() == 'semi sharing'){
+            room_charge = day_diff * 4000
+        }
+        else if(b_type.toLowerCase() == 'general ward'){
+            room_charge = day_diff * 2000
+        }
+
+        $(this).closest('.table-responsive').find('.room_price').append(room_charge)
+
+        // code to calculate total price of medicines
+        total_med = 0
+        for (let index = 0; index < $('.m_amount').length; index++) {
+            const element = $('.m_amount')[index];
+            total_med += parseInt($(element).html())
+        }
+
+        // code to calculate total price of Diagnostics
+        total_diagno = 0
+        for (let index = 0; index < $('.d_amount').length; index++) {
+            const element = $('.d_amount')[index];
+            total_diagno += parseInt($(element).html())
+        }
+
+        // code to calculate total bill amount
+        total_amount = room_charge + total_diagno + total_med
+        $('input[name=total_amount].raise_bill').val(total_amount)
+        $('input[name=total_amount].raise_bill').attr('disabled',false)
+        
+    })
 
     $('#ssn_id, #age, #amount').keypress(function(event){
         test = $(this).parent().find('.error_msg')

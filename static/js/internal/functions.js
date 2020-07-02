@@ -48,7 +48,12 @@ function getDiaHist(ele,id){
 
 // function for get patient data using ajax by passing patient ID
 function getPatientData(ele,id){
+  if($(ele).hasClass('add_patient') && $(ele).hasClass('ssn_id')){
+    var data = {"ssn_id":id}
+  }
+  else{
     var data = {"id": id}
+  }
     $.ajax({
         type: "GET",
         url: "/api/v1/getPatientData",
@@ -99,7 +104,7 @@ function getPatientData(ele,id){
                 }
             }
             else if($(ele).hasClass('add_patient')){
-              alert('Paitent Id already present, Please change your input')
+              alert('Paitent having SSN ID : '+result.ssn_id+'  is already Admitted, Please change your input.')
               $(ele).val('')
             }
             else{
