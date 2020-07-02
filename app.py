@@ -3,7 +3,7 @@ from flask import Flask, session, render_template, request, redirect, url_for, f
 from flask_bcrypt import Bcrypt
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
-from database import Base,Users,Patients,Medicines,MedHist,Diagnostics,DiaHist
+from database import Base,Users,Patients,Medicines,MedHist,Diagnostics,DiaHist,Checkout
 from sqlalchemy import create_engine, exc
 from sqlalchemy.orm import scoped_session, sessionmaker
 from datetime import datetime
@@ -155,14 +155,20 @@ def addpatient():
             address = request.form.get("address")
             state = request.form.get("state")
             city = request.form.get("city")
-            status = "Active"
-            query = Patients(id=id,name=name,age=age,DateofAdm = doa,TypeofBed=typeofbed,address=address,state=state,city=city,status=status)
-            db.add(query)
-            db.commit()
-            flash(f'patient with id - {id} is added successfully','primary')
-            return redirect(url_for('dashboard'))
-    else:
-        flash(f'id is already present in database.','warning')
+            status = "admitted"
+            data = db.execute('select * from patients where ssn_id = :i and status = "admitted"',{'i':id}).fetchone()
+            if not data:
+                if db.query(Patients).count() == 0:
+                    query = Patients(id=110110000,ssn_id=id,name=name,age=age,DateofAdm = doa,TypeofBed=typeofbed,address=address,state=state,city=city,status=status)
+                else:
+                    query = Patients(ssn_id=id,name=name,age=age,DateofAdm = doa,TypeofBed=typeofbed,address=address,state=state,city=city,status=status)
+                db.add(query)
+                db.commit()
+                flash(f'Patient added successfully.','success')
+                return redirect(url_for('dashboard'))
+            else:
+                flash(f'patient already Admitted','warning')
+                
     return render_template("addpatient.html",addpatient=True)
 
 @app.route("/editpatient",methods=['GET','POST'])
@@ -182,7 +188,7 @@ def editpatient():
             address = request.form.get("address")
             state = request.form.get("state")
             city = request.form.get("city")
-            data = db.execute("select * from patients where id = :i and status='Active'",{'i':id}).fetchone()
+            data = db.execute("select * from patients where id = :i and status='admitted'",{'i':id}).fetchone()
             if data:
                 db.execute("UPDATE patients SET name = :n, age = :ag, DateofAdm = :d, TypeofBed = :t, address = :ad, state = :s, city = :c WHERE id = :i", {"n": name,'ag':age,'d':doa,'t':typeofbed,"ad": address,'s':state,'c':city,"i": id})
                 db.commit()
@@ -201,7 +207,7 @@ def viewpatient():
         flash("You don't have access to this page","warning")
         return redirect(url_for('dashboard'))
     if session['usert']=="RDE":
-        result = db.execute("select * from patients where status = 'Active'").fetchall()
+        result = db.execute("select * from patients where status = 'admitted'").fetchall()
         return render_template('viewpatient.html', viewpatient=True,data=result)
     else:
         flash("You don't have access to this page","warning")
@@ -230,7 +236,7 @@ def deletepatient():
     if session['usert']=="RDE":
         if request.method == 'POST':
             id = request.form.get('ssn_id')
-            patient_data = db.execute('select * from patients where id = :i and status = "Active"',{'i':id}).fetchone()
+            patient_data = db.execute('select * from patients where id = :i and status = "admitted"',{'i':id}).fetchone()
             if patient_data:
                 med_hist_data = db.execute('select * from medhist where patient_id = :i',{'i':patient_data.id}).fetchall()
                 med_data = []
@@ -263,7 +269,7 @@ def deletepatient():
         flash("You don't have access to this page","warning")
         return redirect(url_for('dashboard'))
 
-@app.route('/raisebill')
+@app.route('/raisebill',methods=['GET','POST'])
 def raisebill():
     if 'user' not in session:
         return redirect(url_for('login'))
@@ -272,8 +278,29 @@ def raisebill():
         return redirect(url_for('dashboard'))
     if session['usert']=="RDE":
         if request.method == 'POST':
-            print()
-        
+            id = request.form.get('ssn_id')
+            patient_data = db.execute('select * from patients where id = :i and status = "admitted"',{'i':id}).fetchone()
+            if patient_data:
+                dod = datetime.strptime(request.form.get("dod"), '%Y-%m-%d').date()
+                amount = request.form.get('total_amount')
+                try:
+                    db.execute("UPDATE patients SET status = 'discharged' WHERE id = :i", {'i':patient_data.id})
+                    bill = Checkout(
+                        patient_id = patient_data.id,
+                        date_discharge = dod,
+                        total_amount = amount
+                    )
+                except:
+                    db.rollback()
+                    flash(f'Opps!! Something went wrong. Please check your input or try after some time','danger')
+                else:
+                    db.add(bill)
+                    db.commit()
+                    flash('Patient Bill Raised successfully and Patient Discharged','success')
+
+            else:
+                flash('Patient not found or discharged','warning')
+
         return render_template('raisebill.html', raisebill=True)
 
 
@@ -287,7 +314,7 @@ def issuemedicines():
     if session['usert']=="pharmacist":
         if request.method == 'POST':
             id = request.form.get('ssn_id')
-            patient_data = db.execute('select * from patients where id = :i and status = "Active"',{'i':id}).fetchone()
+            patient_data = db.execute('select * from patients where id = :i and status = "admitted"',{'i':id}).fetchone()
             if patient_data:
                 for name,quantity,rate,amount in zip( request.form.getlist('name'), request.form.getlist('quantity'), request.form.getlist('rate'), request.form.getlist('amount') ):
                     med_data = db.execute('select * from medicines where lower(name) = :n',{'n':name.lower()}).fetchone()
@@ -338,7 +365,7 @@ def addDiagnostics():
     if session['usert']=="DSE":
         if request.method == 'POST':
             id = request.form.get('ssn_id')
-            patient_data = db.execute('select * from patients where id = :i and status = "Active"',{'i':id}).fetchone()
+            patient_data = db.execute('select * from patients where id = :i and status = "admitted"',{'i':id}).fetchone()
             if patient_data:
                 for name,amount in zip( request.form.getlist('name'), request.form.getlist('amount') ):
                     med_data = db.execute('select * from diagnostics where lower(name) = :n',{'n':name.lower()}).fetchone()
@@ -433,10 +460,11 @@ def getPatientData():
         if 'id' in request.args:
             id = request.args['id']
             if id.strip():
-                data = db.execute("select * from patients where id = :i and status = 'Active'",{'i':id}).fetchone()
+                data = db.execute("select * from patients where id = :i and status = 'admitted'",{'i':id}).fetchone()
                 if data:
                     result = {
                         'id' : data.id,
+                        'ssn_id' : data.ssn_id,
                         'name' : data.name,
                         'age' : data.age,
                         'DateofAdm' : data.DateofAdm,
@@ -450,14 +478,37 @@ def getPatientData():
                 else:
                     return jsonify(message = 'Patient data not found or Patient discharged',query_status = 'fail')
             else:
-                return jsonify(message = 'Must Required Patient id',query_status = 'fail')
+                return jsonify(message = 'Must Required Patient id or ssn_id',query_status = 'fail')
+        elif 'ssn_id' in request.args:
+            ssn_id = request.args['ssn_id']
+            if ssn_id.strip():
+                data = db.execute("select * from patients where ssn_id = :i and status = 'admitted'",{'i':ssn_id}).fetchone()
+                if data:
+                    result = {
+                        'id' : data.id,
+                        'ssn_id' : data.ssn_id,
+                        'name' : data.name,
+                        'age' : data.age,
+                        'DateofAdm' : data.DateofAdm,
+                        'TypeofBed' : data.TypeofBed,
+                        'address' : data.address,
+                        'state' : data.state,
+                        'city' : data.city,
+                        'status' : data.status
+                    }
+                    return jsonify(result)
+                else:
+                    return jsonify(message = 'Patient data not found or Patient discharged',query_status = 'fail')
+            else:
+                return jsonify(message = 'Must Required Patient id or ssn_id',query_status = 'fail')
         else:
-            data = db.execute("select * from patients where status='Active'").fetchall()
+            data = db.execute("select * from patients where status='admitted'").fetchall()
             dict_data = []
             if data:
                 for row in data:
                     t = {
                         'id' : row.id,
+                        'ssn_id' : data.ssn_id,
                         'name' : row.name,
                         'age' : row.age,
                         'DateofAdm' : row.DateofAdm,
