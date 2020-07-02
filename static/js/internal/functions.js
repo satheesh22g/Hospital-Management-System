@@ -89,7 +89,7 @@ function getPatientData(ele,id){
                 $(ele).closest('tr').find('.p_age').html(result.age)
                 $(ele).closest('tr').find('.p_doa').html(result.DateofAdm)
                 $(ele).closest('tr').find('.p_tob').html(result.TypeofBed)
-                $(ele).closest('tr').find('.p_address').html(result.address+','+result.city+','+result.state)
+                $(ele).closest('tr').find('.p_address').html(result.address+', '+result.city+', '+result.state)
                 
                 if($(ele).hasClass('issue_med')){
                   getMedHist(ele,result.id)
